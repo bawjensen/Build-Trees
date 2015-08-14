@@ -1,0 +1,22 @@
+{
+  "name": "api-challenge",
+  "version": "1.0.0",
+  "description": "Gathering data and comparing before/after the AP item changes, to see what stats different champions prioritize",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bawjensen/LeagueStatImportance.git"
+  },
+  "author": "bawjensen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bawjensen/LeagueStatImportance/issues"
+  },
+  "homepage": "https://github.com/bawjensen/LeagueStatImportance",
+  "dependencies": {
+    "request": "^2.60.0"
+  }
+}
