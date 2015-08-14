@@ -1,4 +1,6 @@
-var request = require('request');
+var fs      = require('fs'),
+    MongoClient = require('mongodb').MongoClient,
+    request = require('request');
 
 // --------------------------------------- Helpers ---------------------------------------
 
@@ -7,7 +9,33 @@ function logErrorAndRethrow(err) {
     throw err;
 }
 
+function rethrowError(err) {
+    throw err;
+}
+
 // --------------------------------------- Main Functions --------------------------------
+
+function openDB(url) {
+    return new Promise(function(resolve, reject) {
+        MongoClient.connect(url, function(err, db) {
+            if (err)
+                reject(Error(err));
+            else
+                resolve(db);
+        });
+    });
+}
+
+function read(filepath) {
+    return new Promise(function(resolve, reject) {
+        fs.readFile(filepath, 'utf8', function(err, data) {
+            if (err)
+                reject(Error(err));
+            else
+                resolve(data);
+        });
+    });
+}
 
 function get(url) {
     return new Promise(function(resolve, reject) {
@@ -53,6 +81,15 @@ function persistentGet(url, identifier) {
     return new Promise(function get(resolve, reject) {
             request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
         })
+        .catch(function(err) {
+            if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
+                console.error('\rIssue with:', url, '\n', err);
+                request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
+            }
+            else {
+                throw err;
+            }
+        })
         .then(JSON.parse)
         .catch(function catchEndOfInputError(err) {
             if (err instanceof SyntaxError)
@@ -67,15 +104,7 @@ function persistentGet(url, identifier) {
                             data)
                         : null;
         })
-        .catch(function(err) {
-            if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
-                console.error('\rIssue with:', url, '\n', err);
-                return persistentGet(url, identifier);
-            }
-            else {
-                throw err;
-            }
-        });
+        .catch(logErrorAndRethrow);
 }
 
 function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, errorHandler) {
@@ -94,9 +123,9 @@ function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, error
             --numActive;
             ++numReceived;
 
-            if ( (numReceived % reportIncrement === 0) || (numReceived === numTotal) ) {
+            // if ( (numReceived % reportIncrement === 0) || (numReceived === numTotal) ) {
                 process.stdout.write('\rReached ' + numReceived + ' / ' + numTotal + ' requests');
-            }
+            // }
 
             if (numReceived >= numTotal) {
                 process.stdout.write('\n');
@@ -105,7 +134,7 @@ function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, error
             else {
                 while (numActive < limitSize && !elem.done) {
                     promiseMapper(elem.value)
-                        .catch(errorHandler ? errorHandler : logErrorAndRethrow)
+                        .catch(errorHandler ? errorHandler : rethrowError)
                         .then(resultHandler)
                         .then(handleResponseAndSendNext)
                         .catch(logErrorAndRethrow);
@@ -121,7 +150,9 @@ function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, error
 }
 
 module.exports = {
-    get: get,
-    persistentGet: persistentGet,
-    rateLimitedGet: rateLimitedGet
+    get:            get,
+    openDB:         openDB,
+    persistentGet:  persistentGet,
+    rateLimitedGet: rateLimitedGet,
+    read:           read
 };

@@ -1,0 +1,50 @@
+var promises    = require('../helpers/promised.js'),
+    querystring = require('querystring');
+
+// --------------------------------------- Global Variables -------------------------------------
+
+var NOW             = (new Date).getTime();
+var WEEK_AGO        = NOW - 604800000; // One week in milliseconds
+var MATCHES_DESIRED = 100000;
+
+var API_KEY         = process.env.RIOT_KEY;
+var DEFAULT_RATE_LIMIT = 100;
+var RATE_LIMIT      = process.argv[2] ? parseInt(process.argv[2]) : DEFAULT_RATE_LIMIT;
+
+var matchEndpoint       = 'https://na.api.pvp.net/api/lol/na/v2.2/match/';
+
+var matchOptions = {
+    'includeTimeline': 'true',
+    'api_key': API_KEY
+}
+
+var matchQuery      = '?' + querystring.stringify(matchOptions);
+
+// --------------------------------------- Main Functions ---------------------------------------
+
+function fetchAndStore() {
+    var db;
+
+    promises.openDB('mongodb://localhost:27017/lol-data')
+        .then(function(newDB) { db = newDB; })
+        .then(promises.read.bind(null, 'json-output/matches/5.11/RANKED_SOLO/NA.json'))
+        .then(JSON.parse)
+        .then(function fetchEverything(matches) {
+            return promises.rateLimitedGet(matches, RATE_LIMIT,
+                function(matchId) {
+                    return promises.persistentGet(matchEndpoint + matchId + matchQuery, matchId);
+                },
+                function(objectResult) {
+                    console.log('\rGot here');
+                    var matchData = objectResult.data;
+                    var matchId = objectResult.id;
+
+                    matchData._id = matchId;
+
+                    db.matches.insert(matchData);
+                });
+        })
+        .catch(console.error);
+}
+
+fetchAndStore();
