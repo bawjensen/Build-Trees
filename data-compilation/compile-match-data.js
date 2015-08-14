@@ -35,7 +35,6 @@ function fetchAndStore() {
                     return promises.persistentGet(matchEndpoint + matchId + matchQuery, matchId);
                 },
                 function(objectResult) {
-                    console.log('\rGot here');
                     var matchData = objectResult.data;
                     var matchId = objectResult.id;
 
