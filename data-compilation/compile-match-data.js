@@ -20,12 +20,18 @@ var matchOptions = {
 
 var matchQuery      = '?' + querystring.stringify(matchOptions);
 
+// --------------------------------------- Helper Functions -------------------------------------
+
+function closeDB() {
+
+}
+
 // --------------------------------------- Main Functions ---------------------------------------
 
 function fetchAndStore() {
     var db;
 
-    promises.openDB('mongodb://localhost:27017/lol-data')
+    return promises.openDB('mongodb://localhost:27017/lol-data')
         .then(function(newDB) { db = newDB; })
         .then(promises.read.bind(null, 'json-output/matches/5.11/RANKED_SOLO/NA.json'))
         .then(JSON.parse)
@@ -43,7 +49,8 @@ function fetchAndStore() {
                     db.collection('matches').insert(matchData);
                 });
         })
-        .catch(console.error);
+        .catch(console.error)
+        .then(function() { db.close(); });
 }
 
 fetchAndStore();
