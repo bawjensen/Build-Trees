@@ -41,7 +41,7 @@ function fetchAndStore() {
 
                     matchData._id = matchId;
 
-                    db.matches.insert(matchData);
+                    db.collection('matches').insert(matchData);
                 });
         })
         .catch(console.error);
