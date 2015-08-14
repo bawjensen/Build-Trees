@@ -22,10 +22,6 @@ var matchQuery      = '?' + querystring.stringify(matchOptions);
 
 // --------------------------------------- Helper Functions -------------------------------------
 
-function closeDB() {
-
-}
-
 // --------------------------------------- Main Functions ---------------------------------------
 
 function fetchAndStore() {
