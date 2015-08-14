@@ -5,7 +5,6 @@ var promises    = require('../helpers/promised.js'),
 
 var NOW             = (new Date).getTime();
 var WEEK_AGO        = NOW - 604800000; // One week in milliseconds
-var MATCHES_DESIRED = 100000;
 
 var API_KEY         = process.env.RIOT_KEY;
 var DEFAULT_RATE_LIMIT = 100;
