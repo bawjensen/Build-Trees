@@ -53,7 +53,7 @@ function fetchAndStore() {
 
                     for (var key in matchData) {
                         if (!desiredData.has(key)) {
-                            console.log('Deleting', key);
+                            // console.log('Deleting', key);
                             delete matchData[key];
                         }
                     }
