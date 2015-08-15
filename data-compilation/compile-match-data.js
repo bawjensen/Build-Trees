@@ -25,6 +25,7 @@ function fetchAndStore() {
     var db;
     var desiredData = new Set([ 'timeline', 'participants' ]);
     var desiredTimelineData = new Set([ 'frames' ]);
+    var desiredFrameData = new Set([ 'events' ]);
     var desiredParticipantData = new Set([ 'championId', 'participantId' ]);
 
     return promises.openDB('mongodb://localhost:27017/lol-data')
@@ -39,18 +40,20 @@ function fetchAndStore() {
                 function(matchData) {
                     matchData.timeline.frames = matchData.timeline.frames.filter(function(frame) {
                         if (!frame.events) return false;
+
+                        for (var key in frame) {
+                            if (!desiredFrameData.has(key))
+                                delete frame[key];
+                        }
+
                         frame.events = frame.events.filter(function(evt) {
                             return evt.eventType === 'ITEM_PURCHASED' || evt.eventType === 'ITEM_UNDO';
                         });
                         return frame.events.length !== 0;
                     });
-
-
                     for (var key in matchData.timeline) {
-                        if (!desiredTimelineData.has(key)) {
-                            console.log('Deleting', key);
+                        if (!desiredTimelineData.has(key))
                             delete matchData.timeline[key];
-                        }
                     }
 
                     matchData.participants.forEach(function(participant) {
