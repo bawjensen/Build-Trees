@@ -23,7 +23,7 @@ var matchQuery      = '?' + querystring.stringify(matchOptions);
 
 function fetchAndStore() {
     var db;
-    var desiredData = [];
+    var desiredData = new Set([ 'timeline', 'participants' ]);
 
     return promises.openDB('mongodb://localhost:27017/lol-data')
         .then(function(newDB) { db = newDB; })
@@ -42,6 +42,13 @@ function fetchAndStore() {
                         });
                         return frame.events.length !== 0;
                     });
+
+                    for (var key in matchData) {
+                        if (!desiredData.has(key)) {
+                            console.log('Deleting', key);
+                            delete matchData[key];
+                        }
+                    }
 
                     db.collection('matchesAfter').insert(matchData);
                 });
