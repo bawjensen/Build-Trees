@@ -37,7 +37,7 @@ function fetchAndStore() {
                     return promises.persistentGet(matchEndpoint + matchId + matchQuery);
                 },
                 function(matchData) {
-                    matchData.timeline = matchData.timeline.frames.filter(function(frame) {
+                    matchData.timeline.frames = matchData.timeline.frames.filter(function(frame) {
                         if (!frame.events) return false;
                         frame.events = frame.events.filter(function(evt) {
                             return evt.eventType === 'ITEM_PURCHASED' || evt.eventType === 'ITEM_UNDO';
