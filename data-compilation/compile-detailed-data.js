@@ -1,7 +1,7 @@
 var promises    = require('../helpers/promised.js'),
     Trie        = require('../helpers/item-build-trie.js');
 
-var LIMIT = 50;
+var LIMIT = 100;
 
 // --------------------------------------- Global Variables -------------------------------------
 
@@ -10,7 +10,9 @@ var LIMIT = 50;
 function isFinalItem(itemId, staticItemData) {
     let itemData = staticItemData['' + itemId];
     // console.log('Testing:', (!itemData.into.length), (itemData.gold.total > 500), itemData.name);
-    return (!itemData.into.length) && (itemData.gold.total > 500);
+    return (itemData.tags.indexOf('Boots') !== -1 || (itemData.group && itemData.group.indexOf('Boots') !== -1)) ?
+        itemData.depth === 2 :
+        (!itemData.into.length) && (itemData.gold.total > 500);
 }
 
 function extractItemBuilds(timeline, staticItemData) {
@@ -43,7 +45,7 @@ function extractItemBuilds(timeline, staticItemData) {
 function fetchAndStore() {
     var db;
     var staticItemData;
-    var staticChampData;
+    var champNameConverter;
 
     var champItemBuilds = {};
 
@@ -52,9 +54,9 @@ function fetchAndStore() {
         .then(promises.read.bind(null, 'json-data/item.json'))
         .then(JSON.parse)
         .then(function(itemData) { staticItemData = itemData.data; })
-        .then(promises.read.bind(null, 'json-data/champion.json'))
+        .then(promises.read.bind(null, 'json-data/champNameConverter.json'))
         .then(JSON.parse)
-        .then(function(champData) { staticChampData = champData.data; })
+        .then(function(nameConverter) { champNameConverter = nameConverter; })
         .then(function() {
             var counter = 0;
             return new Promise(function(resolve, reject) {
@@ -73,17 +75,27 @@ function fetchAndStore() {
                                 champItemBuilds[participant.championId] = new Trie();
                             }
 
-                            if (allBuilds[participant.participantId])
-                                champItemBuilds[participant.championId].insert(allBuilds[participant.participantId]);
+                            let build = allBuilds[participant.participantId];
+
+                            if (build) {
+                                // if (build.length > 6) console.log(build.map(function(itemId) { return staticItemData[itemId].name; }));
+                                if (build.length > 6) build = build.slice(0,6);
+                                // if (participant.championId === 429) {
+                                //     console.log('Inserting:', build.map(function(itemId) { return staticItemData[itemId].name; }));
+                                // }
+                                champItemBuilds[participant.championId].insert(build);
+                            }
                         });
                     });
                 })
                 .then(function() { return champItemBuilds; });
         })
         .then(function(champItemBuilds) {
-            for (var championId in champItemBuilds) {
-                console.log('championId:', championId, '\n' + champItemBuilds[championId].toString(staticItemData));
-            }
+            console.log(champNameConverter['429'], '\n' + champItemBuilds[429].toString(staticItemData));
+
+            // for (var championId in champItemBuilds) {
+            //     console.log(champNameConverter[''+championId], '\n' + champItemBuilds[championId].toString(staticItemData));
+            // }
         })
         // .then(console.log)
         .catch(console.error)
