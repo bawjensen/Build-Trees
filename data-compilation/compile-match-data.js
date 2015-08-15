@@ -32,15 +32,11 @@ function fetchAndStore() {
         .then(function fetchEverything(matches) {
             return promises.rateLimitedGet(matches.slice(0, MATCH_LIMIT), RATE_LIMIT,
                 function(matchId) {
-                    return promises.persistentGet(matchEndpoint + matchId + matchQuery, matchId);
+                    return promises.persistentGet(matchEndpoint + matchId + matchQuery);
                 },
-                function(objectResult) {
-                    var matchData = objectResult.data;
-                    var matchId = objectResult.id;
-
-                    // matchData._id = matchId;
-
+                function(matchData) {
                     matchData.timeline = matchData.timeline.frames.filter(function(frame) {
+                        if (!frame.events) return false;
                         frame.events = frame.events.filter(function(evt) {
                             return evt.eventType === 'ITEM_PURCHASED' || evt.eventType === 'ITEM_UNDO';
                         });
