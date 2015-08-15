@@ -48,6 +48,7 @@ function fetchAndStore() {
 
                     for (var key in matchData.timeline) {
                         if (!desiredTimelineData.has(key)) {
+                            console.log('Deleting', key);
                             delete matchData.timeline[key];
                         }
                     }
@@ -61,7 +62,6 @@ function fetchAndStore() {
 
                     for (var key in matchData) {
                         if (!desiredData.has(key)) {
-                            // console.log('Deleting', key);
                             delete matchData[key];
                         }
                     }
