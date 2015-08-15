@@ -28,7 +28,7 @@ function fetchAndStore() {
 
     return promises.openDB('mongodb://localhost:27017/lol-data')
         .then(function(newDB) { db = newDB; })
-        .then(promises.read.bind(null, 'json-output/matches/5.11/RANKED_SOLO/NA.json'))
+        .then(promises.read.bind(null, 'json-data/matches/5.11/RANKED_SOLO/NA.json'))
         .then(JSON.parse)
         .then(function fetchEverything(matches) {
             return promises.rateLimitedGet(matches, RATE_LIMIT,
