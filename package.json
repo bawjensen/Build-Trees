@@ -17,7 +17,11 @@
   },
   "homepage": "https://github.com/bawjensen/LeagueStatImportance",
   "dependencies": {
-    "mongodb": "^2.0.40",
+    "express": "^4.13.3",
+    "jade": "^1.11.0",
+    "logfmt": "^1.2.0",
+    "mongodb": "^2.0.41",
+    "optimist": "^0.6.1",
     "request": "^2.60.0"
   }
 }

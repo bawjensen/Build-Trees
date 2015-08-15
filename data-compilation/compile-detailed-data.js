@@ -1,7 +1,8 @@
-var promises    = require('../helpers/promised.js'),
+var fs          = require('fs'),
+    promises    = require('../helpers/promised.js'),
     Trie        = require('../helpers/item-build-trie.js');
 
-var LIMIT = 100;
+var LIMIT = process.argv[2] ? parseInt(process.argv[2]) : 10;
 
 // --------------------------------------- Global Variables -------------------------------------
 
@@ -60,7 +61,7 @@ function fetchAndStore() {
         .then(function() {
             var counter = 0;
             return new Promise(function(resolve, reject) {
-                db.collection('matches')
+                db.collection('matchesAfter')
                     .find({})
                     .limit(LIMIT)
                     .forEach(function(match) {
@@ -81,7 +82,7 @@ function fetchAndStore() {
                                 // if (build.length > 6) console.log(build.map(function(itemId) { return staticItemData[itemId].name; }));
                                 if (build.length > 6) build = build.slice(0,6);
                                 // if (participant.championId === 429) {
-                                //     console.log('Inserting:', build.map(function(itemId) { return staticItemData[itemId].name; }));
+                                //     console.log('\nInserting:', build.map(function(itemId) { return staticItemData[itemId].name; }));
                                 // }
                                 champItemBuilds[participant.championId].insert(build);
                             }
@@ -91,14 +92,18 @@ function fetchAndStore() {
                 .then(function() { return champItemBuilds; });
         })
         .then(function(champItemBuilds) {
-            console.log(champNameConverter['429'], '\n' + champItemBuilds[429].toString(staticItemData));
 
-            // for (var championId in champItemBuilds) {
-            //     console.log(champNameConverter[''+championId], '\n' + champItemBuilds[championId].toString(staticItemData));
-            // }
+            for (var championId in champItemBuilds) {
+                // console.log(champNameConverter[''+championId], '\n' + champItemBuilds[championId].toString(staticItemData));
+                var champName = champNameConverter[''+championId];
+                fs.writeFile('web-server/data/' + champName + '.json', champItemBuilds[championId].toJSON(champName, staticItemData), function(err) { if (err) console.log(err); });
+                // console.log(champNameConverter['429'], '\n' + champItemBuilds[429].toString(staticItemData));
+            }
         })
         // .then(console.log)
-        .catch(console.error)
+        .catch(function(err) {
+            console.error(err.stack);
+        })
         .then(function() { db.close(); });
 }
 
