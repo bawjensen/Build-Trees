@@ -1,6 +1,8 @@
 var fs = require('fs');
 
-fs.readFile('json-data/champion.json', function(err, buffer) {
+var MODE = 'Before';
+
+fs.readFile('json-data/champion' + MODE + '.json', function(err, buffer) {
     var data = JSON.parse(buffer);
     var newData = {};
 
@@ -8,5 +10,5 @@ fs.readFile('json-data/champion.json', function(err, buffer) {
         newData[parseInt(data.data[strKey].key)] = data.data[strKey].name;
     }
 
-    fs.writeFile('json-data/champNameConverter.json', JSON.stringify(newData));
+    fs.writeFile('json-data/champNameConverter' + MODE + '.json', JSON.stringify(newData));
 });

@@ -57,7 +57,7 @@ function fetchAndStore() {
         .then(promises.read.bind(null, 'json-data/item' + MODE + '.json'))
         .then(JSON.parse)
         .then(function(itemData) { staticItemData = itemData.data; })
-        .then(promises.read.bind(null, 'json-data/champNameConverter.json'))
+        .then(promises.read.bind(null, 'json-data/champNameConverter' + MODE + '.json'))
         .then(JSON.parse)
         .then(function(nameConverter) { champNameConverter = nameConverter; })
         .then(function() {
