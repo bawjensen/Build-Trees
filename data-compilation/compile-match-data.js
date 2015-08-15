@@ -6,7 +6,7 @@ var promises    = require('../helpers/promised.js'),
 var API_KEY             = process.env.RIOT_KEY;
 var DEFAULT_RATE_LIMIT  = 100;
 var RATE_LIMIT          = DEFAULT_RATE_LIMIT;
-var MATCH_LIMIT         = process.argv[2] ? parseInt(process.argv[2]) : DEFAULT_RATE_LIMIT;
+var MATCH_LIMIT         = process.argv[2] ? parseInt(process.argv[2]) : 10000;
 var MODE                = 'After';
 
 var matchEndpoint       = 'https://na.api.pvp.net/api/lol/na/v2.2/match/';
