@@ -4,6 +4,8 @@ var fs          = require('fs'),
 
 var LIMIT = process.argv[2] ? parseInt(process.argv[2]) : 10;
 
+var MODE = 'After';
+
 // --------------------------------------- Global Variables -------------------------------------
 
 // --------------------------------------- Helper Functions -------------------------------------
@@ -52,7 +54,7 @@ function fetchAndStore() {
 
     return promises.openDB('mongodb://localhost:27017/lol-data')
         .then(function(newDB) { db = newDB; })
-        .then(promises.read.bind(null, 'json-data/item.json'))
+        .then(promises.read.bind(null, 'json-data/item' + MODE + '.json'))
         .then(JSON.parse)
         .then(function(itemData) { staticItemData = itemData.data; })
         .then(promises.read.bind(null, 'json-data/champNameConverter.json'))
@@ -61,7 +63,7 @@ function fetchAndStore() {
         .then(function() {
             var counter = 0;
             return new Promise(function(resolve, reject) {
-                db.collection('matchesAfter')
+                db.collection('matches' + MODE)
                     .find({})
                     .limit(LIMIT)
                     .forEach(function(match) {
