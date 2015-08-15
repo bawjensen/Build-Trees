@@ -24,6 +24,7 @@ var matchQuery      = '?' + querystring.stringify(matchOptions);
 function fetchAndStore() {
     var db;
     var desiredData = new Set([ 'timeline', 'participants' ]);
+    var desiredTimelineData = new Set([ 'events' ]);
     var desiredParticipantData = new Set([ 'championId', 'participantId' ]);
 
     return promises.openDB('mongodb://localhost:27017/lol-data')
@@ -43,6 +44,13 @@ function fetchAndStore() {
                         });
                         return frame.events.length !== 0;
                     });
+
+
+                    for (var key in matchData.timeline) {
+                        if (!desiredTimelineData.has(key)) {
+                            delete matchData.timeline[key];
+                        }
+                    }
 
                     matchData.participants.forEach(function(participant) {
                         for (var key in participant) {
