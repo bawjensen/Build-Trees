@@ -22,6 +22,18 @@ Trie.prototype.insert = function(item_build) {
     }
 };
 
+function recursivePrune(node, threshold) {
+    for (let key in node.children) {
+        if ((node.children[key].count / node.count) < threshold)
+            delete node.children[key];
+        else
+            recursivePrune(node.children[key], threshold);
+    }
+}
+Trie.prototype.prune = function(threshold) {
+    recursivePrune(this.head, threshold);
+}
+
 function recursiveToString(node, count, buildSoFar, buffer, staticItemData) {
     if (!Object.keys(node.children).length)
         buffer.str += buildSoFar + '\n';

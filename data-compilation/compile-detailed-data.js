@@ -101,6 +101,7 @@ function fetchAndStore() {
 
             for (var championId in champItemBuilds) {
                 // console.log(champNameConverter[''+championId], '\n' + champItemBuilds[championId].toString(staticItemData));
+                champItemBuilds[championId].prune(0.05);
                 var champName = champNameConverter[''+championId];
                 fs.writeFile('web-server/data/' + champName + MODE + '.json', champItemBuilds[championId].toTreeJSON(champName, championId, staticItemData), function(err) { if (err) console.log(err); });
             }

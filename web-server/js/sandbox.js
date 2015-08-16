@@ -4,13 +4,11 @@ var EXPANDED_COLOR = 'lightsteelblue',
     COLLAPSED_COLOR = 'white',
     IMAGE_WIDTH = 20,
     STROKE_MAX = 40,
-    LAYER_SPACING = 150,
-    MAX_WEIGHT;
+    LAYER_SPACING = 100;
 
-function plot(jsonData) {
-
+function plot(jsonData, containerSelector) {
     var margin = {top: 20, right: 20, bottom: 20, left: 20},
-      width = (window.innerWidth * 0.4) - margin.right - margin.left,
+      width = (d3.select(containerSelector).node().getBoundingClientRect().width) - margin.right - margin.left,
       height = 1600 - margin.top - margin.bottom;
 
     var i = 0,
@@ -29,7 +27,7 @@ function plot(jsonData) {
     var diagonal = d3.svg.diagonal()
       .projection(function(d) { return [d.x, d.y]; });
 
-    var svg = d3.select('body').append('svg')
+    var svg = d3.select(containerSelector).append('svg')
       .attr('width', width + margin.right + margin.left)
       .attr('height', height + margin.top + margin.bottom)
     .append('g')
@@ -38,6 +36,7 @@ function plot(jsonData) {
     root = jsonData;
     root.x0 = width / 2;
     root.y0 = 0;
+    root._weight = root.weight;
 
     function collapse(d) {
       if (d.children) {
@@ -47,7 +46,7 @@ function plot(jsonData) {
       }
     }
 
-    MAX_WEIGHT = jsonData.weight;
+    var maxWeight = jsonData.weight;
     var strokeScale = d3.scale.sqrt()
         .domain([0, 1])
         .range([0, STROKE_MAX]);
@@ -66,6 +65,7 @@ function plot(jsonData) {
         links = tree.links(nodes);
 
     // Normalize for fixed-depth.
+    // nodes.forEach(function(d) { d.y = Math.sqrt(d.depth) * LAYER_SPACING; });
     nodes.forEach(function(d) { d.y = d.depth * LAYER_SPACING; });
 
     // Update the nodes…
@@ -114,8 +114,11 @@ function plot(jsonData) {
         .attr('r', multiScaler.bind(null, true, false))
         .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
-    nodeUpdate.select('text')
-        .style('fill-opacity', 1);
+    nodeUpdate.select('image')
+        .attr('x', multiScaler.bind(null, true, true))
+        .attr('y', multiScaler.bind(null, true, true))
+        .attr('height', multiScaler.bind(null, false, false))
+        .attr('width', multiScaler.bind(null, false, false));
 
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit().transition()
@@ -142,7 +145,7 @@ function plot(jsonData) {
             var o = {x: source.x0, y: source.y0};
             return diagonal({source: o, target: o});
         })
-        .style('stroke-width', function(d) { console.log(multiScaler(false, false, d)); return multiScaler(false, false, d); });
+        .style('stroke-width', multiScaler.bind(null, false, false));
 
     // Transition links to their new position.
     link.transition()
@@ -173,15 +176,30 @@ function plot(jsonData) {
         return modifier * func(element.weight /
             (element.parent ?
                 element.parent.children[element.parent.children.length-1].weight :
-                MAX_WEIGHT));
+                maxWeight));
     }
 
     // Toggle children on click.
     function click(d) {
+        if (!d.children && !d._children) return;
+
         if (d.children) {
+            console.log('collpasing');
+            console.log('d.weight', d.weight);
+            console.log('d._weight', d._weight);
+            console.log('d.children', d.children);
+            console.log('d._children', d._children);
+            d.weight = d._weight;
+            d._weight = null;
             d._children = d.children;
             d.children = null;
-        } else {
+        }
+        else {
+            console.log('expanding');
+            d._weight = d.weight;
+            d.weight = (d.parent ?
+                d.parent.children[d.parent.children.length-1].weight :
+                maxWeight);
             d.children = d._children;
             d._children = null;
         }
@@ -194,14 +212,17 @@ function plot(jsonData) {
     var tooltipValue = d3.select(document.getElementById('value'));
     function hover(hoverIn, d) {
         if (hoverIn) {
+            var value;
             if (d.source) {
                 tooltipText.text(d.source.name + ' -> ' + d.target.name);
-                tooltipValue.text(d.target.weight + ' times');
+                value = d.target._weight ? d.target._weight : d.target.weight;
             }
             else {
                 tooltipText.text(d.name);
-                tooltipValue.text(d.weight + ' times');
+                value = d._weight ? d._weight : d.weight;
             }
+
+            tooltipValue.text('x' + value);
 
             tooltip.attr('class', 'visible')
                 .style('left', (d3.event.pageX) + 'px')
@@ -213,5 +234,5 @@ function plot(jsonData) {
     }
 }
 
-plot(dataBefore);
-plot(dataAfter);
+plot(dataBefore, '#chart-1-container');
+plot(dataAfter, '#chart-2-container');

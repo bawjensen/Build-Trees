@@ -2,14 +2,49 @@ html
   head
     title Hi
 
-    link(href='/css/sandbox.css' rel='stylesheet' type='text/css')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+
+    link(rel='stylesheet' href='https://storage.googleapis.com/code.getmdl.io/1.0.2/material.teal-green.min.css')
+    script(src='https://storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js')
+    link(rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    link(rel='stylesheet' href='/css/sandbox.css')
 
   body
-    #chart
+    .mdl-layout.mdl-js-layout
+      header.mdl-layout__header
+        .mdl-layout-icon
+        .mdl-layout__header-row
+          // Title
+          a.mdl-layout-title(href='/') Title
+          // Add spacer, to align navigation to the right
+          .mdl-layout-spacer
+          // Navigation
+          nav.mdl-navigation
+            .mdl-textfield.mdl-js-textfield.mdl-textfield--expandable
+              label.mdl-button.mdl-js-button.mdl-button--icon(for='search')
+                i.material-icons search
+              .mdl-textfield__expandable-holder
+                input#search.mdl-textfield__input(type='text')
+                label.mdl-textfield__label(for='search') Enter your query...
+      //- .mdl-layout__drawer
+        span.mdl-layout-title Title
+        nav.mdl-navigation
+          .mdl-textfield.mdl-js-textfield.mdl-textfield--expandable
+            label.mdl-button.mdl-js-button.mdl-button--icon(for='search')
+              i.material-icons search
+            .mdl-textfield__expandable-holder
+              input#search.mdl-textfield__input(type='text')
+              label.mdl-textfield__label(for='search') Enter your query...
 
-    #tooltip
-      #title
-      #value
+
+      main.mdl-layout__content
+        .mdl-grid
+          #chart-1-container.mdl-cell.mdl-cell--6-col
+          #chart-2-container.mdl-cell.mdl-cell--6-col
+
+        #tooltip
+          #title
+          #value
 
     script(src='/js/d3/d3.min.js')
     script.
