@@ -68,4 +68,27 @@ Trie.prototype.toJSON = function(champName, staticItemData) {
     return JSON.stringify(data);
 }
 
+function recursiveToTreeJSON(node, tree, staticItemData) {
+    for (var key in node.children) {
+        tree.children.push({
+            name: staticItemData[key].name,
+            itemId: key,
+            weight: node.children[key].count,
+            children: []
+        });
+        recursiveToTreeJSON(node.children[key], tree.children[tree.children.length-1], staticItemData);
+    }
+}
+Trie.prototype.toTreeJSON = function(champName, champId, staticItemData) {
+    var tree = {
+        name: champName,
+        weight: this.head.count,
+        children: []
+    };
+
+    recursiveToTreeJSON(this.head, tree, staticItemData);
+
+    return JSON.stringify(tree);
+}
+
 module.exports = Trie;

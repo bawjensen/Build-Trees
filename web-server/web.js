@@ -159,22 +159,34 @@ var mainRouter = express.Router();
 
 
 
-mainRouter.route('/')
-    .get(function(req, res) {
-        res.render('new.jade');
-    });
+// mainRouter.route('/')
+//     .get(function(req, res) {
+//         // res.render('betterSankey.jade');
+//         fs.readFile('data/itemAfter.json', function(err, staticItemData) {
+//             if (err)
+//                 res.send(err);
+//             else
+//                 res.render('sandbox.jade', { staticItemData: staticItemData });
+//         });
+//     });
 
 mainRouter.route('/:champName')
     .get(function(req, res) {
-        fs.readFile('data/' + req.params.champName + 'Before' + '.json', function(err, dataBefore) {
+        fs.readFile('data/itemAfter.json', function(err, staticItemData) {
             if (err)
                 res.send(err);
             else {
-                fs.readFile('data/' + req.params.champName + 'After' + '.json', function(err, dataAfter) {
+                fs.readFile('data/' + req.params.champName + 'Before' + '.json', function(err, dataBefore) {
                     if (err)
                         res.send(err);
                     else {
-                        res.render('index.jade', { dataBefore: dataBefore, dataAfter: dataAfter });
+                        fs.readFile('data/' + req.params.champName + 'After' + '.json', function(err, dataAfter) {
+                            if (err)
+                                res.send(err);
+                            else {
+                                res.render('sandbox.jade', { staticItemData: staticItemData, dataBefore: dataBefore, dataAfter: dataAfter });
+                            }
+                        });
                     }
                 });
             }

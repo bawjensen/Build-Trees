@@ -4,7 +4,11 @@ var fs          = require('fs'),
 
 var LIMIT = process.argv[2] ? parseInt(process.argv[2]) : 10000;
 
-var MODE = 'Before';
+var MODE = process.argv[3] ?
+                (process.argv[3] === 'a' ? 'After' : 'Before') :
+                'After';
+
+console.log('In mode:', MODE);
 
 // --------------------------------------- Global Variables -------------------------------------
 
@@ -80,14 +84,9 @@ function fetchAndStore() {
 
                             if (build) {
                                 // if (build.length > 6) console.log(build.map(function(itemId) { return staticItemData[itemId].name; }));
-                                if (build.length > 5) {
-                                    build = build.slice(0,5)
-                                }
-                                else {
-                                    while (build.length < 5) {
-                                        build.push(null);
-                                    }
-                                }
+                                // if (build.length > 5) {
+                                //     build = build.slice(0,5)
+                                // }
                                 // if (participant.championId === 429) {
                                 //     console.log('\nInserting:', build.map(function(itemId) { return staticItemData[itemId].name; }));
                                 // }
@@ -103,9 +102,9 @@ function fetchAndStore() {
             for (var championId in champItemBuilds) {
                 // console.log(champNameConverter[''+championId], '\n' + champItemBuilds[championId].toString(staticItemData));
                 var champName = champNameConverter[''+championId];
-                fs.writeFile('web-server/data/' + champName + MODE + '.json', champItemBuilds[championId].toJSON(champName, staticItemData), function(err) { if (err) console.log(err); });
-                // console.log(champNameConverter['429'], '\n' + champItemBuilds[429].toString(staticItemData));
+                fs.writeFile('web-server/data/' + champName + MODE + '.json', champItemBuilds[championId].toTreeJSON(champName, championId, staticItemData), function(err) { if (err) console.log(err); });
             }
+            // console.log(champNameConverter['429'], '\n' + champItemBuilds[429].toTreeJSON('Kalista', staticItemData));
         })
         // .then(console.log)
         .catch(function(err) {

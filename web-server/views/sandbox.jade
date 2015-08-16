@@ -1,0 +1,19 @@
+html
+  head
+    title Hi
+
+    link(href='/css/sandbox.css' rel='stylesheet' type='text/css')
+
+  body
+    #chart
+
+    #tooltip
+      #title
+      #value
+
+    script(src='/js/d3/d3.min.js')
+    script.
+      var staticItemData = !{staticItemData},
+          dataBefore = !{dataBefore},
+          dataAfter = !{dataAfter};
+    script(src='/js/sandbox.js')
