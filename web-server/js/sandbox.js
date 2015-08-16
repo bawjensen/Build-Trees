@@ -4,7 +4,8 @@ var EXPANDED_COLOR = 'lightsteelblue',
     COLLAPSED_COLOR = 'white',
     IMAGE_WIDTH = 20,
     STROKE_MAX = 40,
-    LAYER_SPACING = 80;
+    LAYER_SPACING = 150,
+    MAX_WEIGHT;
 
 function plot(jsonData) {
 
@@ -34,10 +35,6 @@ function plot(jsonData) {
     .append('g')
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-
-    var strokeScale = d3.scale.sqrt();
-    var radiusScale = d3.scale.sqrt();
-
     root = jsonData;
     root.x0 = width / 2;
     root.y0 = 0;
@@ -50,9 +47,12 @@ function plot(jsonData) {
       }
     }
 
-    strokeScale.domain([0, jsonData.weight])
+    MAX_WEIGHT = jsonData.weight;
+    var strokeScale = d3.scale.sqrt()
+        .domain([0, 1])
         .range([0, STROKE_MAX]);
-    radiusScale.domain([0, jsonData.weight])
+    var radiusScale = d3.scale.sqrt()
+        .domain([0, 1])
         .range([0, STROKE_MAX / 2]);
 
     root.children.forEach(collapse);
@@ -93,10 +93,10 @@ function plot(jsonData) {
     nodeEnter.append('image')
         .on('mouseover', hover.bind(null, true))
         .on('mouseout', hover.bind(null, false))
-        .attr('x', function(d) { return -radiusScale(d.weight); })
-        .attr('y', function(d) { return -radiusScale(d.weight); })
-        .attr('height', function(d) { return strokeScale(d.weight); })
-        .attr('width', function(d) { return strokeScale(d.weight); })
+        .attr('x', multiScaler.bind(null, true, true))
+        .attr('y', multiScaler.bind(null, true, true))
+        .attr('height', multiScaler.bind(null, false, false))
+        .attr('width', multiScaler.bind(null, false, false))
         // .style('border-radius', function(d) { return radiusScale(d.weight) / 2; })
         .attr('xlink:href', function(d) {
             if (d.itemId)
@@ -111,7 +111,7 @@ function plot(jsonData) {
         .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
     nodeUpdate.select('circle')
-        .attr('r', function(d) { return radiusScale(d.weight); })
+        .attr('r', multiScaler.bind(null, true, false))
         .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
     nodeUpdate.select('text')
@@ -135,14 +135,14 @@ function plot(jsonData) {
 
     // Enter any new links at the parent's previous position.
     link.enter().insert('path', 'g')
+        .on('mouseover', hover.bind(null, true))
+        .on('mouseout', hover.bind(null, false))
         .attr('class', 'link')
         .attr('d', function(d) {
-          var o = {x: source.x0, y: source.y0};
-          return diagonal({source: o, target: o});
+            var o = {x: source.x0, y: source.y0};
+            return diagonal({source: o, target: o});
         })
-        .style('stroke-width', function(d) {
-          return strokeScale(d.target.weight);
-        });
+        .style('stroke-width', function(d) { console.log(multiScaler(false, false, d)); return multiScaler(false, false, d); });
 
     // Transition links to their new position.
     link.transition()
@@ -153,43 +153,59 @@ function plot(jsonData) {
     link.exit().transition()
         .duration(duration)
         .attr('d', function(d) {
-          var o = {x: source.x, y: source.y};
-          return diagonal({source: o, target: o});
+            var o = {x: source.x, y: source.y};
+            return diagonal({source: o, target: o});
         })
         .remove();
 
     // Stash the old positions for transition.
     nodes.forEach(function(d) {
-      d.x0 = d.x;
-      d.y0 = d.y;
-    });
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
+    }
+
+    function multiScaler(isRadius, inv, d) {
+        var func = isRadius ? radiusScale : strokeScale;
+        var modifier = inv ? -1 : 1;
+        var element = d.target ? d.target : d;
+
+        return modifier * func(element.weight /
+            (element.parent ?
+                element.parent.children[element.parent.children.length-1].weight :
+                MAX_WEIGHT));
     }
 
     // Toggle children on click.
     function click(d) {
-    if (d.children) {
-      d._children = d.children;
-      d.children = null;
-    } else {
-      d.children = d._children;
-      d._children = null;
-    }
-    update(d);
+        if (d.children) {
+            d._children = d.children;
+            d.children = null;
+        } else {
+            d.children = d._children;
+            d._children = null;
+        }
+        update(d);
     }
 
+    // Show tooltip on hover
     var tooltip = d3.select(document.getElementById('tooltip'));
     var tooltipText = d3.select(document.getElementById('title'));
     var tooltipValue = d3.select(document.getElementById('value'));
-
-    // Show tooltip on hover
     function hover(hoverIn, d) {
         if (hoverIn) {
-            tooltipText.text(d.name);
-            tooltipValue.text(d.weight);
+            if (d.source) {
+                tooltipText.text(d.source.name + ' -> ' + d.target.name);
+                tooltipValue.text(d.target.weight + ' times');
+            }
+            else {
+                tooltipText.text(d.name);
+                tooltipValue.text(d.weight + ' times');
+            }
 
             tooltip.attr('class', 'visible')
-                .style('left', (d3.event.pageX + 15) + 'px')
-                .style('top', (d3.event.pageY - 75) + 'px');
+                .style('left', (d3.event.pageX) + 'px')
+                .style('top', (d3.event.pageY + 15) + 'px');
         }
         else {
             tooltip.attr('class', null);
