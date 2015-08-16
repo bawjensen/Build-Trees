@@ -36,7 +36,7 @@ app.use('/favicon.ico', express.static(__dirname + '/images/favicon.png'));
 app.use('/css',         express.static(__dirname + '/css'));
 app.use('/js',          express.static(__dirname + '/js'));
 app.use('/img',         express.static(__dirname + '/img'));
-// app.use('/data',        express.static(__dirname + '/data'));
+app.use('/data',        express.static(__dirname + '/data'));
 // app.use('/bootstrap',   express.static(__dirname + '/bootstrap'));
 
 // // Other stuff to use
@@ -157,18 +157,29 @@ var mainRouter = express.Router();
 //     });
 
 
-// Main page middleware and routes
+
+
+mainRouter.route('/')
+    .get(function(req, res) {
+        res.render('new.jade');
+    });
+
 mainRouter.route('/:champName')
     .get(function(req, res) {
-        fs.readFile('data/' + req.params.champName + '.json', function(err, data) {
+        fs.readFile('data/' + req.params.champName + 'Before' + '.json', function(err, dataBefore) {
             if (err)
                 res.send(err);
             else {
-                res.render('index.jade', { data: data });
+                fs.readFile('data/' + req.params.champName + 'After' + '.json', function(err, dataAfter) {
+                    if (err)
+                        res.send(err);
+                    else {
+                        res.render('index.jade', { dataBefore: dataBefore, dataAfter: dataAfter });
+                    }
+                });
             }
-        })
+        });
     });
-
 // // ================================= Champ Page functions =============================
 
 // function loadItemBlacklist(req, res, next) {

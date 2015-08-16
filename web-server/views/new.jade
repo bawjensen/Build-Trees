@@ -1,0 +1,82 @@
+doctype html
+html
+  head
+    meta(http-equiv='X-UA-COMPATIBLE', content='IE=EmulateIE9')
+    meta(http-equiv='Content-Type', content='text/html;charset=utf-8')
+    meta(property='og:image', content='http://www.brightpointinc.com/interactive/images/Budget_202px.png')
+    meta(name='verify-v1', content='76mLLsz9Quagn33AQKKRm8yvB0rV1yl7nuQ/mrrph4U=')
+    title Federal Budget Data Visualization D3.js
+    link(type='text/css', rel='stylesheet', href='/css/betterSankey.css')
+    script(type='text/javascript', src='/js/d3/d3.js')
+    //- // Google Analytics
+    //- // Google Analytics
+    //- script.
+    //-   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    //-   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    //-   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    //-   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    //-   ga('create', 'UA-173014-2', 'brightpointinc.com');
+    //-   ga('send', 'pageview');
+  style.
+    a:hover {
+    font-weight:bold;
+    color:#000000;
+    }
+  body(style='height:900px; width:1280px; overflow:auto')
+    #fb-root
+    script.
+      (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      //- js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+      fjs.parentNode.insertBefore(js, fjs);
+      }(document, 'script', 'facebook-jssdk'));
+    .nytg-navBar(style='left:20px;')
+      ul.nytg-navigation.clearfix(style='list-style-type:none')
+        li#federalButton.selected Federal
+        li#stateButton State
+        li#localButton Local
+    #footer(style='position:absolute; right:20px; top:15px;')
+      | 2013 Federal Budget
+      .hint(style='font-style:italic;')
+        | click on a circle for a more granular view.
+        br
+        |         click on "Federal", "State", or "Local" buttons to see spending at those levels.
+        br
+        |         Data Source: 
+        a(href='http://www.usgovernmentspending.com title=', style='color:#777') www.usgovernmentspending.com
+        br
+        br
+        div(style='color:#000; font-style:normal')
+          | Design and Engineering: 
+          a(href='http://www.brightpointinc.com/project-list/', title='BrightPoint Consulting, Inc.') www.brightpointinc.com
+    #body(style='position: absolute; top:80px')
+      #toolTip.tooltip(style='opacity:0;')
+        #head.header
+        //- #header1.header1
+        //- #header2.header2
+        //- div(style='position:absolute; left:10px')
+          #federalDiv.selected(style='width:135px; left:0px; top:10px; position: absolute;')
+            .header3
+              br
+              | Federal Funds
+            .header-rule
+            #fedSpend.header4
+          #stateDiv(style='width:125px; left:140px; top:10px; position: absolute;')
+            .header3
+              br
+              | State Funds
+            .header-rule
+            #stateSpend.header4
+          #localDiv(style='width:125px; left:272px; top:10px; position: absolute;')
+            .header3
+              br
+              | Local Funds
+            .header-rule
+            #localSpend.header4
+        //- .tooltipTail
+      .fb-like(onmouseout='fb_mouseOut();', style='z-index: 9998; position:absolute; left:70px; top:0px;', data-href='http://www.brightpointinc.com/interactive/budget/', data-layout='button', data-action='like', data-show-faces='false', data-share='true')
+      #fbMask(onmouseover='fb_mouseOver();', style='z-index:9999; position:absolute; left:70px; top:0px; width:100px; height:20px; background: white; opacity:0.7;')
+      //- script(type='text/javascript', src='/js/file.js')
+      script(type='text/javascript', src='/js/betterSankey.js')

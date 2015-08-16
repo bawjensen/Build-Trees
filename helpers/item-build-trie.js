@@ -1,4 +1,4 @@
-var BUILD_PERCENT_THRESHOLD = 0.1;
+var BUILD_PERCENT_THRESHOLD = 0.075;
 
 function Node() {
     this.count = 0;
@@ -30,7 +30,7 @@ function recursiveToString(node, count, buildSoFar, buffer, staticItemData) {
     for (var key in node.children) {
         recursiveToString(node.children[key], // Recurse on child
             count + node.children[key].count, // Add the count for all partial builds to the final build
-            buildSoFar + ' =' + node.children[key].count + '=> ' + staticItemData[key].name, // Append the name of the build, so we can print it
+            buildSoFar + ' =' + node.children[key].count + '=> ' + (key in staticItemData ? staticItemData[key].name : ''), // Append the name of the build, so we can print it
             buffer, // Pass along the buffer that we're building up
             staticItemData); // Pass along the static data
     }
@@ -46,14 +46,14 @@ function recursiveToJSON(node, data, parentIndex, parentCount, nodeLabel, static
 
     var index = data.nodes.length; // Index of the item about the be pushed
     data.nodes.push({ name: nodeLabel });
-    data.links.push({ source: parentIndex, target: index, value: node.count });
+    data.links.push({ source: parentIndex, target: index, value: (nodeLabel !== '' ? node.count : 0) }); // Hiding empty nodes by giving 0 width
 
     for (var key in node.children) {
         recursiveToJSON(node.children[key],
             data,
             index,
             node.count,
-            staticItemData[key].name,
+            key !== 'null' ? staticItemData[key].name : '',
             staticItemData);
     }
 }
@@ -62,7 +62,7 @@ Trie.prototype.toJSON = function(champName, staticItemData) {
 
     data.nodes.push({ name: champName });
     for (var key in this.head.children) {
-        recursiveToJSON(this.head.children[key], data, 0, this.head.count, staticItemData[key].name, staticItemData);
+        recursiveToJSON(this.head.children[key], data, 0, this.head.count, (key !== 'null' ? staticItemData[key].name : ''), staticItemData);
     }
 
     return JSON.stringify(data);

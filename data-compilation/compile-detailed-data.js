@@ -2,9 +2,9 @@ var fs          = require('fs'),
     promises    = require('../helpers/promised.js'),
     Trie        = require('../helpers/item-build-trie.js');
 
-var LIMIT = process.argv[2] ? parseInt(process.argv[2]) : 10;
+var LIMIT = process.argv[2] ? parseInt(process.argv[2]) : 10000;
 
-var MODE = 'After';
+var MODE = 'Before';
 
 // --------------------------------------- Global Variables -------------------------------------
 
@@ -13,9 +13,7 @@ var MODE = 'After';
 function isFinalItem(itemId, staticItemData) {
     let itemData = staticItemData['' + itemId];
     // console.log('Testing:', (!itemData.into.length), (itemData.gold.total > 500), itemData.name);
-    return (itemData.tags.indexOf('Boots') !== -1 || (itemData.group && itemData.group.indexOf('Boots') !== -1)) ?
-        itemData.depth === 2 :
-        (!itemData.into.length) && (itemData.gold.total > 500);
+    return ( (itemData.into.length === 0) && (itemData.gold.total > 500) && !(itemData.group && itemData.group.indexOf('Boots') !== -1) );
 }
 
 function extractItemBuilds(timeline, staticItemData) {
@@ -82,7 +80,14 @@ function fetchAndStore() {
 
                             if (build) {
                                 // if (build.length > 6) console.log(build.map(function(itemId) { return staticItemData[itemId].name; }));
-                                if (build.length > 6) build = build.slice(0,6);
+                                if (build.length > 5) {
+                                    build = build.slice(0,5)
+                                }
+                                else {
+                                    while (build.length < 5) {
+                                        build.push(null);
+                                    }
+                                }
                                 // if (participant.championId === 429) {
                                 //     console.log('\nInserting:', build.map(function(itemId) { return staticItemData[itemId].name; }));
                                 // }
@@ -98,7 +103,7 @@ function fetchAndStore() {
             for (var championId in champItemBuilds) {
                 // console.log(champNameConverter[''+championId], '\n' + champItemBuilds[championId].toString(staticItemData));
                 var champName = champNameConverter[''+championId];
-                fs.writeFile('web-server/data/' + champName + '.json', champItemBuilds[championId].toJSON(champName, staticItemData), function(err) { if (err) console.log(err); });
+                fs.writeFile('web-server/data/' + champName + MODE + '.json', champItemBuilds[championId].toJSON(champName, staticItemData), function(err) { if (err) console.log(err); });
                 // console.log(champNameConverter['429'], '\n' + champItemBuilds[429].toString(staticItemData));
             }
         })
