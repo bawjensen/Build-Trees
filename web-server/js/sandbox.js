@@ -20,6 +20,9 @@ function plot(jsonData) {
         .size([width, height])
         .separation(function separation(a, b) {
             return a.parent == b.parent ? 0.125 : 0.25;
+        })
+        .sort(function comparator(a, b) {
+            return a.weight - b.weight;
         });
 
     var diagonal = d3.svg.diagonal()
