@@ -13,12 +13,18 @@ block body-content
 
 
   .mdl-grid
-    #chart-1-container.mdl-cell.mdl-cell--6-col
-    #chart-2-container.mdl-cell.mdl-cell--6-col
+    .data-container.mdl-card.mdl-shadow--4dp.mdl-cell.mdl-cell--6-col
+      h5 5.11 (Before the AP Item Changes)
+      #before-container
+    .data-container.mdl-card.mdl-shadow--4dp.mdl-cell.mdl-cell--6-col
+      h5 5.14 (After the AP Item Changes)
+      #after-container
 
-    #tooltip
-      #title
-      #value
+  #tooltip.mdl-card.mdl-shadow--4dp
+    .mdl-card__title
+      h4.mdl-card__title-text
+    .mdl-card__supporting-text
+      h5.mdl-card__supporting-text-text
 
   script(src='/js/d3/d3.min.js')
   script.

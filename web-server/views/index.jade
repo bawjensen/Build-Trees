@@ -2,9 +2,13 @@ extends skeleton
 
 block body-content
   .mdl-grid
-    for champObj in champAfter.data
-      .mdl-cell.mdl-cell--1-col
-        a(href='/'+champObj.name)
-          .champDiv
+    for champObj in champBefore.data
+      .champDiv.mdl-cell.mdl-cell--1-col.mdl-card.mdl-shadow--4dp.mdl-card--border
+        .mdl-card__media
+          a(href='/'+champObj.name)
             img(src='http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + champObj.image.full)
+        .mdl-card__actions.mdl-card--border
+          a(href='/'+champObj.name).mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect
             = champObj.name
+
+          //- = champObj.name

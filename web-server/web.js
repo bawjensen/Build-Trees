@@ -53,14 +53,14 @@ var mainRouter = express.Router();
 mainRouter.route('/')
     .get(function(req, res) {
         promises.readMultipleFiles([
-                ['data/champAfter.json', 'champAfter']
+                ['data/champBefore.json', 'champBefore']
             ])
             .then(function(filesObj) {
                 res.render('index.jade',  {
-                    champAfter: JSON.parse(filesObj['champAfter'])
+                    champBefore: JSON.parse(filesObj['champBefore'])
                 });
             })
-            .catch(function(err) { res.send(err.stack); });
+            .catch(function(err) { res.status(500).send(500); });
     });
 
 mainRouter.route('/:champName')
@@ -82,27 +82,8 @@ mainRouter.route('/:champName')
                     dataBefore:     filesObj['dataBefore'],
                     dataAfter:      filesObj['dataAfter']
                 });
-            });
-
-        // fs.readFile('data/itemAfter.json', function(err, staticItemData) {
-        //     if (err)
-        //         res.send(err);
-        //     else {
-        //         fs.readFile('data/' + req.params.champName + 'Before' + '.json', function(err, dataBefore) {
-        //             if (err)
-        //                 res.send(err);
-        //             else {
-        //                 fs.readFile('data/' + req.params.champName + 'After' + '.json', function(err, dataAfter) {
-        //                     if (err)
-        //                         res.send(err);
-        //                     else {
-        //                         res.render('champ.jade', { staticItemData: staticItemData, dataBefore: dataBefore, dataAfter: dataAfter });
-        //                     }
-        //                 });
-        //             }
-        //         });
-        //     }
-        // });
+            })
+            .catch(function(err) { res.status(500).send(500); });
     });
 
 

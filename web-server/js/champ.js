@@ -22,8 +22,8 @@ function biggestChild(element, reverseSort) {
 
 function plot(jsonData, staticItemData, staticChampData, containerSelector, reverseSort) {
     var margin = {top: 20, right: 20, bottom: 20, left: 20},
-      width = (d3.select(containerSelector).node().getBoundingClientRect().width) - margin.right - margin.left,
-      height = 1600 - margin.top - margin.bottom;
+      width = d3.select(containerSelector).node().getBoundingClientRect().width - margin.right - margin.left,
+      height = (LAYER_SPACING * 6) - margin.top - margin.bottom;
 
     var i = 0,
       duration = 750,
@@ -73,115 +73,115 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     d3.select(self.frameElement).style('height', '800px');
 
     function update(source) {
-    // Compute the new tree layout.
-    var nodes = tree.nodes(root).reverse(),
-        links = tree.links(nodes);
+        // Compute the new tree layout.
+        var nodes = tree.nodes(root).reverse(),
+            links = tree.links(nodes);
 
-    // Normalize for fixed-depth.
-    // nodes.forEach(function(d) { d.y = Math.sqrt(d.depth) * LAYER_SPACING; });
-    nodes.forEach(function(d) { d.y = d.depth * LAYER_SPACING; });
+        // Normalize for fixed-depth.
+        // nodes.forEach(function(d) { d.y = Math.sqrt(d.depth) * LAYER_SPACING; });
+        nodes.forEach(function(d) { d.y = d.depth * LAYER_SPACING; });
 
-    // Update the nodes…
-    var node = svg.selectAll('g.node')
-        .data(nodes, function(d) { return d.id || (d.id = ++i); });
+        // Update the nodes
+        var node = svg.selectAll('g.node')
+            .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
-    // Enter any new nodes at the parent's previous position.
-    var nodeEnter = node.enter().append('g')
-        .attr('class', 'node')
-        .attr('transform', function(d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
-        .on('click', click);
+        // Enter any new nodes at the parent's previous position.
+        var nodeEnter = node.enter().append('g')
+            .attr('class', 'node')
+            .attr('transform', function(d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
+            .on('click', click);
 
-    // nodeEnter.append('circle')
-    //     .on('mouseover', hover.bind(null, true))
-    //     .on('mouseout', hover.bind(null, false))
-    //     .attr('r', 1e-6)
-    //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
+        // nodeEnter.append('circle')
+        //     .on('mouseover', hover.bind(null, true))
+        //     .on('mouseout', hover.bind(null, false))
+        //     .attr('r', 1e-6)
+        //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
-    // nodeEnter.append('text')
-    //     .attr('x', function(d) { return radiusScale(d.weight); })
-    //     .attr('dy', '.35em')
-    //     .attr('text-anchor', function(d) { return 'start'; })
-    //     .text(function(d) { return d.name; })
-    //     .style('fill-opacity', 1e-6);
-    nodeEnter.append('image')
-        .on('mouseover', hover.bind(null, true))
-        .on('mouseout', hover.bind(null, false))
-        .attr('x', 1e-6)
-        .attr('y', 1e-6)
-        .attr('height', 1e-6)
-        .attr('width', 1e-6)
-        // .style('border-radius', function(d) { return radiusScale(d.weight) / 2; })
-        .attr('xlink:href', function(d) {
-            if (d.itemId)
-                return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/item/' + staticItemData.data[d.itemId].image.full);
-            else
-                return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + staticChampData.data[d.champStrKey].image.full);
-        });
+        // nodeEnter.append('text')
+        //     .attr('x', function(d) { return radiusScale(d.weight); })
+        //     .attr('dy', '.35em')
+        //     .attr('text-anchor', function(d) { return 'start'; })
+        //     .text(function(d) { return d.name; })
+        //     .style('fill-opacity', 1e-6);
+        nodeEnter.append('image')
+            .on('mouseover', hover.bind(null, true))
+            .on('mouseout', hover.bind(null, false))
+            .attr('x', 1e-6)
+            .attr('y', 1e-6)
+            .attr('height', 1e-6)
+            .attr('width', 1e-6)
+            // .style('border-radius', function(d) { return radiusScale(d.weight) / 2; })
+            .attr('xlink:href', function(d) {
+                if (d.itemId)
+                    return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/item/' + staticItemData.data[d.itemId].image.full);
+                else
+                    return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + staticChampData.data[d.champStrKey].image.full);
+            });
 
-    // Transition nodes to their new position.
-    var nodeUpdate = node.transition()
-        .duration(duration)
-        .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+        // Transition nodes to their new position.
+        var nodeUpdate = node.transition()
+            .duration(duration)
+            .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
-    // nodeUpdate.select('circle')
-    //     .attr('r', multiScaler.bind(null, true, false))
-    //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
+        // nodeUpdate.select('circle')
+        //     .attr('r', multiScaler.bind(null, true, false))
+        //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
-    nodeUpdate.select('image')
-        .attr('x', multiScaler.bind(null, true, true))
-        .attr('y', multiScaler.bind(null, true, true))
-        .attr('height', multiScaler.bind(null, false, false))
-        .attr('width', multiScaler.bind(null, false, false));
+        nodeUpdate.select('image')
+            .attr('x', multiScaler.bind(null, true, true))
+            .attr('y', multiScaler.bind(null, true, true))
+            .attr('height', multiScaler.bind(null, false, false))
+            .attr('width', multiScaler.bind(null, false, false));
 
-    // Transition exiting nodes to the parent's new position.
-    var nodeExit = node.exit().transition()
-        .duration(duration)
-        .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
-        .remove();
+        // Transition exiting nodes to the parent's new position.
+        var nodeExit = node.exit().transition()
+            .duration(duration)
+            .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
+            .remove();
 
-    // nodeExit.select('circle')
-    //     .attr('r', 1e-6);
-    nodeExit.select('image')
-        .attr('width', 1e-6)
-        .attr('height', 1e-6);
+        // nodeExit.select('circle')
+        //     .attr('r', 1e-6);
+        nodeExit.select('image')
+            .attr('width', 1e-6)
+            .attr('height', 1e-6);
 
-    // nodeExit.select('text')
-    //     .style('fill-opacity', 1e-6);
+        // nodeExit.select('text')
+        //     .style('fill-opacity', 1e-6);
 
-    // Update the links…
-    var link = svg.selectAll('path.link')
-        .data(links, function(d) { return d.target.id; });
+        // Update the links…
+        var link = svg.selectAll('path.link')
+            .data(links, function(d) { return d.target.id; });
 
-    // Enter any new links at the parent's previous position.
-    link.enter().insert('path', 'g')
-        .on('mouseover', hover.bind(null, true))
-        .on('mouseout', hover.bind(null, false))
-        .attr('class', 'link')
-        .attr('d', function(d) {
-            var o = {x: source.x0, y: source.y0};
-            return diagonal({source: o, target: o});
-        })
-        .style('stroke-width', multiScaler.bind(null, false, false));
+        // Enter any new links at the parent's previous position.
+        link.enter().insert('path', 'g')
+            .on('mouseover', hover.bind(null, true))
+            .on('mouseout', hover.bind(null, false))
+            .attr('class', 'link')
+            .attr('d', function(d) {
+                var o = {x: source.x0, y: source.y0};
+                return diagonal({source: o, target: o});
+            })
+            .style('stroke-width', multiScaler.bind(null, false, false));
 
-    // Transition links to their new position.
-    link.transition()
-        .duration(duration)
-        .attr('d', diagonal);
+        // Transition links to their new position.
+        link.transition()
+            .duration(duration)
+            .attr('d', diagonal);
 
-    // Transition exiting nodes to the parent's new position.
-    link.exit().transition()
-        .duration(duration)
-        .attr('d', function(d) {
-            var o = {x: source.x, y: source.y};
-            return diagonal({source: o, target: o});
-        })
-        .remove();
+        // Transition exiting nodes to the parent's new position.
+        link.exit().transition()
+            .duration(duration)
+            .attr('d', function(d) {
+                var o = {x: source.x, y: source.y};
+                return diagonal({source: o, target: o});
+            })
+            .remove();
 
-    // Stash the old positions for transition.
-    nodes.forEach(function(d) {
-            d.x0 = d.x;
-            d.y0 = d.y;
-        });
+        // Stash the old positions for transition.
+        nodes.forEach(function(d) {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
     }
 
     function multiScaler(isRadius, inv, d) {
@@ -197,7 +197,13 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
     // Toggle children on click.
     function click(d) {
-        if (!d.children && !d._children) return;
+        console.log('click');
+        console.log(d.children);
+        console.log(d._children);
+        if (!d.children && d._children.length === 0) { // Trying to expand _collapsed_ node with no children
+            alert('' + d.name + ' has no further item purchases');
+            return;
+        }
 
         if (d.children) {
             d.weight = d._weight;
@@ -213,36 +219,39 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             d.children = d._children;
             d._children = null;
         }
+        console.log(d.children);
+        console.log(d._children);
         update(d);
     }
 
     // Show tooltip on hover
-    var tooltip = d3.select(document.getElementById('tooltip'));
-    var tooltipText = d3.select(document.getElementById('title'));
-    var tooltipValue = d3.select(document.getElementById('value'));
+    var tooltip = d3.select('#tooltip');
+    var tooltipText = d3.select('#tooltip .mdl-card__title-text');
+    var tooltipValue = d3.select('#tooltip .mdl-card__supporting-text-text');
     function hover(hoverIn, d) {
         if (hoverIn) {
             var value;
             if (d.source) {
-                tooltipText.text(d.source.name + ' -> ' + d.target.name);
                 value = d.target._weight ? d.target._weight : d.target.weight;
+                tooltipText.text(d.source.name + ' -> ' + d.target.name);
             }
             else {
-                tooltipText.text(d.name);
                 value = d._weight ? d._weight : d.weight;
+                tooltipText.text(d.name);
             }
 
             tooltipValue.text('x' + value);
 
-            tooltip.attr('class', 'visible')
+            tooltip.classed('visible', true)
                 .style('left', (d3.event.pageX) + 'px')
                 .style('top', (d3.event.pageY + 15) + 'px');
         }
         else {
-            tooltip.attr('class', null);
+            tooltip.classed('visible', false);
+            // tooltip.attr('class', null);
         }
     }
 }
 
-plot(dataBefore, itemBefore, champBefore, '#chart-1-container', true);
-plot(dataAfter, itemAfter, champBefore, '#chart-2-container', false);
+plot(dataBefore, itemBefore, champBefore, '#before-container', true);
+plot(dataAfter, itemAfter, champBefore, '#after-container', false);

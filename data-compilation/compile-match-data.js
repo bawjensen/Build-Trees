@@ -58,6 +58,7 @@ function fetchAndStore() {
                     }
 
                     matchData.participants.forEach(function(participant) {
+                        if (participant.championId === '126') console.log('yay!');
                         for (var key in participant) {
                             if (!desiredParticipantData.has(key))
                                 delete participant[key];

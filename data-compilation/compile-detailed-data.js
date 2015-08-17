@@ -99,6 +99,8 @@ function fetchAndStore() {
         })
         .then(function(champItemBuilds) {
 
+            console.log('Got', Object.keys(champItemBuilds), 'builds');
+
             for (var championId in champItemBuilds) {
                 champItemBuilds[championId].prune(0.05);
 

@@ -4,6 +4,8 @@ html
 
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
 
+    link(href='https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en' rel='stylesheet')
+
     link(rel='stylesheet' href='https://storage.googleapis.com/code.getmdl.io/1.0.2/material.teal-green.min.css')
     script(src='https://storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js')
     link(rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons')
@@ -11,16 +13,13 @@ html
 
     block head-content
 
-  body
-    .mdl-layout.mdl-js-layout
+  body.mdl-base
+    .mdl-layout.mdl-js-layout.mdl-layout--fixed-header
       header.mdl-layout__header
-        .mdl-layout-icon
         .mdl-layout__header-row
-          // Title
-          a.mdl-layout-title(href='/') Title
-          // Add spacer, to align navigation to the right
+          span.mdl-layout-title
+            a.mdl-button.mdl-js-button.mdl-js-ripple-effect.mdl-color-text--primary-contrast(href='/') Home
           .mdl-layout-spacer
-          // Navigation
           nav.mdl-navigation
             .mdl-textfield.mdl-js-textfield.mdl-textfield--expandable
               label.mdl-button.mdl-js-button.mdl-button--icon(for='search')
