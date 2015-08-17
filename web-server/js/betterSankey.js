@@ -89,7 +89,7 @@ d3.csv('/data/FederalBudget_2013_a.csv', function(csvDataRows) {
     initializeSumFields();
     updateRadii();
     alreadySummed = true;
-    root.values.forEach(rescursiveToggle);
+    root.values.forEach(collapse);
     toggle(root.values[1]);
     update(root);
     stateButton.on('click', function(node) {
@@ -145,13 +145,13 @@ d3.csv('/data/FederalBudget_2013_a.csv', function(csvDataRows) {
         level4Radius = d3.scale.sqrt().domain([0, level4Max[spendField]]).range([1, 40]);
     };
 
-    function rescursiveToggle(node) {
+    function collapse(node) {
         if (node.values && node.values.actuals) {
-            node.values.actuals.forEach(rescursiveToggle);
+            node.values.actuals.forEach(collapse);
             toggle(node);
         }
         else if (node.values) {
-            node.values.forEach(rescursiveToggle);
+            node.values.forEach(collapse);
             toggle(node);
         };
     };

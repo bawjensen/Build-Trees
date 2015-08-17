@@ -6,7 +6,21 @@ var EXPANDED_COLOR = 'lightsteelblue',
     STROKE_MAX = 40,
     LAYER_SPACING = 100;
 
-function plot(jsonData, containerSelector) {
+function sortNorm(a, b) {
+    return b.weight - a.weight;
+}
+
+function sortReverse(a, b) {
+    return a.weight - b.weight;
+}
+
+function biggestChild(element, reverseSort) {
+    if (!element.children) console.log(element);
+    var index = reverseSort ? element.children.length-1 : 0;
+    return element.children[index];
+}
+
+function plot(jsonData, staticItemData, staticChampData, containerSelector, reverseSort) {
     var margin = {top: 20, right: 20, bottom: 20, left: 20},
       width = (d3.select(containerSelector).node().getBoundingClientRect().width) - margin.right - margin.left,
       height = 1600 - margin.top - margin.bottom;
@@ -20,9 +34,7 @@ function plot(jsonData, containerSelector) {
         .separation(function separation(a, b) {
             return a.parent == b.parent ? 0.125 : 0.25;
         })
-        .sort(function comparator(a, b) {
-            return a.weight - b.weight;
-        });
+        .sort(reverseSort ? sortReverse : sortNorm);
 
     var diagonal = d3.svg.diagonal()
       .projection(function(d) { return [d.x, d.y]; });
@@ -56,6 +68,7 @@ function plot(jsonData, containerSelector) {
 
     root.children.forEach(collapse);
     update(root);
+    click(biggestChild(root, reverseSort));
 
     d3.select(self.frameElement).style('height', '800px');
 
@@ -78,11 +91,11 @@ function plot(jsonData, containerSelector) {
         .attr('transform', function(d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
         .on('click', click);
 
-    nodeEnter.append('circle')
-        .on('mouseover', hover.bind(null, true))
-        .on('mouseout', hover.bind(null, false))
-        .attr('r', 1e-6)
-        .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
+    // nodeEnter.append('circle')
+    //     .on('mouseover', hover.bind(null, true))
+    //     .on('mouseout', hover.bind(null, false))
+    //     .attr('r', 1e-6)
+    //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
     // nodeEnter.append('text')
     //     .attr('x', function(d) { return radiusScale(d.weight); })
@@ -93,16 +106,16 @@ function plot(jsonData, containerSelector) {
     nodeEnter.append('image')
         .on('mouseover', hover.bind(null, true))
         .on('mouseout', hover.bind(null, false))
-        .attr('x', multiScaler.bind(null, true, true))
-        .attr('y', multiScaler.bind(null, true, true))
-        .attr('height', multiScaler.bind(null, false, false))
-        .attr('width', multiScaler.bind(null, false, false))
+        .attr('x', 1e-6)
+        .attr('y', 1e-6)
+        .attr('height', 1e-6)
+        .attr('width', 1e-6)
         // .style('border-radius', function(d) { return radiusScale(d.weight) / 2; })
         .attr('xlink:href', function(d) {
             if (d.itemId)
                 return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/item/' + staticItemData.data[d.itemId].image.full);
             else
-                return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + d.name + '.png');
+                return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + staticChampData.data[d.champStrKey].image.full);
         });
 
     // Transition nodes to their new position.
@@ -110,9 +123,9 @@ function plot(jsonData, containerSelector) {
         .duration(duration)
         .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
-    nodeUpdate.select('circle')
-        .attr('r', multiScaler.bind(null, true, false))
-        .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
+    // nodeUpdate.select('circle')
+    //     .attr('r', multiScaler.bind(null, true, false))
+    //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
     nodeUpdate.select('image')
         .attr('x', multiScaler.bind(null, true, true))
@@ -126,11 +139,14 @@ function plot(jsonData, containerSelector) {
         .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
         .remove();
 
-    nodeExit.select('circle')
-        .attr('r', 1e-6);
+    // nodeExit.select('circle')
+    //     .attr('r', 1e-6);
+    nodeExit.select('image')
+        .attr('width', 1e-6)
+        .attr('height', 1e-6);
 
-    nodeExit.select('text')
-        .style('fill-opacity', 1e-6);
+    // nodeExit.select('text')
+    //     .style('fill-opacity', 1e-6);
 
     // Update the links…
     var link = svg.selectAll('path.link')
@@ -175,7 +191,7 @@ function plot(jsonData, containerSelector) {
 
         return modifier * func(element.weight /
             (element.parent ?
-                element.parent.children[element.parent.children.length-1].weight :
+                biggestChild(element.parent, reverseSort).weight :
                 maxWeight));
     }
 
@@ -184,21 +200,15 @@ function plot(jsonData, containerSelector) {
         if (!d.children && !d._children) return;
 
         if (d.children) {
-            console.log('collpasing');
-            console.log('d.weight', d.weight);
-            console.log('d._weight', d._weight);
-            console.log('d.children', d.children);
-            console.log('d._children', d._children);
             d.weight = d._weight;
             d._weight = null;
             d._children = d.children;
             d.children = null;
         }
         else {
-            console.log('expanding');
             d._weight = d.weight;
             d.weight = (d.parent ?
-                d.parent.children[d.parent.children.length-1].weight :
+                biggestChild(d.parent, reverseSort).weight :
                 maxWeight);
             d.children = d._children;
             d._children = null;
@@ -234,5 +244,5 @@ function plot(jsonData, containerSelector) {
     }
 }
 
-plot(dataBefore, '#chart-1-container');
-plot(dataAfter, '#chart-2-container');
+plot(dataBefore, itemBefore, champBefore, '#chart-1-container', true);
+plot(dataAfter, itemAfter, champBefore, '#chart-2-container', false);

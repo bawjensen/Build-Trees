@@ -91,7 +91,7 @@ function recursiveToTreeJSON(node, tree, staticItemData) {
         recursiveToTreeJSON(node.children[key], tree.children[tree.children.length-1], staticItemData);
     }
 }
-Trie.prototype.toTreeJSON = function(champName, champId, staticItemData) {
+Trie.prototype.toTreeJSON = function(champName, staticItemData) {
     var tree = {
         name: champName,
         weight: this.head.count,
@@ -100,7 +100,7 @@ Trie.prototype.toTreeJSON = function(champName, champId, staticItemData) {
 
     recursiveToTreeJSON(this.head, tree, staticItemData);
 
-    return JSON.stringify(tree);
+    return tree;
 }
 
 module.exports = Trie;

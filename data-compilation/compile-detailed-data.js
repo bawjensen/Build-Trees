@@ -100,14 +100,16 @@ function fetchAndStore() {
         .then(function(champItemBuilds) {
 
             for (var championId in champItemBuilds) {
-                // console.log(champNameConverter[''+championId], '\n' + champItemBuilds[championId].toString(staticItemData));
                 champItemBuilds[championId].prune(0.05);
-                var champName = champNameConverter[''+championId];
-                fs.writeFile('web-server/data/' + champName + MODE + '.json', champItemBuilds[championId].toTreeJSON(champName, championId, staticItemData), function(err) { if (err) console.log(err); });
+
+                var champName = champNameConverter[''+championId].name;
+                var jsonCompatibleTrie = champItemBuilds[championId].toTreeJSON(champName, staticItemData);
+
+                jsonCompatibleTrie.champStrKey = champNameConverter[''+championId].strKey;
+
+                fs.writeFile('web-server/data/' + champName + MODE + '.json', JSON.stringify(jsonCompatibleTrie), function(err) { if (err) console.log(err); });
             }
-            // console.log(champNameConverter['429'], '\n' + champItemBuilds[429].toTreeJSON('Kalista', staticItemData));
         })
-        // .then(console.log)
         .catch(function(err) {
             console.error(err.stack);
         })

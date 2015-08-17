@@ -37,6 +37,18 @@ function read(filepath) {
     });
 }
 
+function readMultipleFiles(iterable) {
+    var filesObj = {};
+    return Promise.all(
+            iterable.map(function(tuple) {
+                return read(tuple[0]).then(function(jsonData) { filesObj[tuple[1]] = jsonData; });
+            })
+        )
+        .then(function() {
+            return filesObj;
+        });
+}
+
 function get(url) {
     return new Promise(function(resolve, reject) {
         request.get(url, function(err, resp, body) {
@@ -108,7 +120,7 @@ function persistentGet(url, identifier) {
 }
 
 function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, errorHandler) {
-    return new Promise(function wrapper(resolve, reject) {
+    return new Promise(function(resolve, reject) {
         var isSet = (iterable instanceof Set) ? true : false;
         var isArray = !isSet;
 
@@ -154,5 +166,6 @@ module.exports = {
     openDB:         openDB,
     persistentGet:  persistentGet,
     rateLimitedGet: rateLimitedGet,
-    read:           read
+    read:           read,
+    readMultipleFiles: readMultipleFiles
 };
