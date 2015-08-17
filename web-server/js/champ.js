@@ -164,7 +164,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 var o = {x: source.x0, y: source.y0};
                 return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', multiScaler.bind(null, true));
+            .style('stroke-width', multiScaler.bind(null, true))
+            .on('click', click);
 
         // Transition links to their new position.
         link.transition()
@@ -201,26 +202,27 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
     // Toggle children on click.
     function click(d) {
-        if (!d.children && d._children.length === 0) { // Trying to expand _collapsed_ node with no children
-            alert('' + d.name + ' has no further item purchases');
+        var element = d.target || d;
+        if (!element.children && element._children.length === 0) { // Trying to expand _collapsed_ node with no children
+            alert('' + element.name + ' has no further item purchases');
             return;
         }
 
-        if (d.children) {
-            d.weight = d._weight;
-            d._weight = null;
-            d._children = d.children;
-            d.children = null;
+        if (element.children) {
+            element.weight = element._weight;
+            element._weight = null;
+            element._children = element.children;
+            element.children = null;
         }
         else {
-            d._weight = d.weight;
-            d.weight = (d.parent ?
-                biggestChild(d.parent, reverseSort).weight :
+            element._weight = element.weight;
+            element.weight = (element.parent ?
+                biggestChild(element.parent, reverseSort).weight :
                 maxWeight);
-            d.children = d._children;
-            d._children = null;
+            element.children = element._children;
+            element._children = null;
         }
-        update(d);
+        update(element);
     }
 
     // Show tooltip on hover
