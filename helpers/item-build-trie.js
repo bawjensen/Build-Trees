@@ -26,7 +26,20 @@ Trie.prototype.insert = function(item_build) {
     ++node.endedHere;
 };
 
-// More "true", but things become too tiny
+function recursiveNormalize_v3(node) {
+    var shortedRatio;
+    if (Object.keys(node.children).length !== 0) {
+        let childrenSum = Object.keys(node.children).reduce(function(sumSoFar, childKey) { return sumSoFar + node.children[childKey].count; }, 0);
+        shortedRatio =  node.count / childrenSum;
+        // console.log(node.count, childrenSum, shortedRatio);
+    }
+
+    for (var key in node.children) {
+        node.children[key].count = Math.round(node.children[key].count * shortedRatio);
+        recursiveNormalize_v3(node.children[key]);
+    }
+}
+// More "true", but things become small near the end
 function recursiveNormalize_v2(node, numToKeep) {
     var shortedRatio;
     if (Object.keys(node.children).length !== 0) {
@@ -53,8 +66,9 @@ function recursiveNormalize(node, numToKeep, cumulativeShorted) {
     }
 }
 Trie.prototype.normalizePartialBuilds = function(numToKeep) {
-    recursiveNormalize_v2(this.head, numToKeep);
-    // recursiveNormalize_v2(this.head, numToKeep, 0);
+    // recursiveNormalize(this.head, numToKeep, 0);
+    // recursiveNormalize_v2(this.head, numToKeep);
+    recursiveNormalize_v3(this.head);
 }
 
 function comp(a, b) {
@@ -79,8 +93,8 @@ function recursivePrune(node, numToKeep) {
     }
 }
 Trie.prototype.prune = function(numToKeep) {
-    this.normalizePartialBuilds(numToKeep);
     recursivePrune(this.head, numToKeep);
+    this.normalizePartialBuilds(numToKeep);
 }
 
 function recursiveToJSON(node, data, parentIndex, parentCount, nodeLabel, staticItemData) {
