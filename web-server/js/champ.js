@@ -107,8 +107,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     .text(function(d) { return d.name; })
         //     .style('fill-opacity', 1e-6);
         nodeEnter.append('image')
-            .on('mouseover', hover.bind(null, true))
-            .on('mouseout', hover.bind(null, false))
+            .on('mouseover', function(d) { return hover(true, d, this); })
+            .on('mouseout', function(d) { return hover(false, d, this); })
             .attr('x', 1e-6)
             .attr('y', 1e-6)
             .attr('height', 1e-6)
@@ -193,11 +193,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         var func = isStroke ? strokeScale : widthScale;
         var element = d.target || d;
 
-        // return modifier * func(element.weight /
-        //     (element.parent ?
-        //         biggestChild(element.parent, reverseSort).weight :
-        //         maxWeight));
-        return func(element.weight / maxWeight);
+        return func(element.weight /
+            (element.parent ?
+                biggestChild(element.parent, reverseSort).weight :
+                maxWeight));
+        // return func(element.weight / maxWeight);
     }
 
     // Toggle children on click.
@@ -229,7 +229,23 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     var tooltip = d3.select('#tooltip');
     var tooltipText = d3.select('#tooltip .mdl-card__title-text');
     var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
-    function hover(hoverIn, d) {
+    function hover(hoverIn, d, that) {
+        if (that) {
+            var image = d3.select(that);
+            if (hoverIn) {
+                image.attr('x', -STROKE_MAX / 2);
+                image.attr('y', -STROKE_MAX / 2);
+                image.attr('width', STROKE_MAX);
+                image.attr('height', STROKE_MAX);
+            }
+            else {
+                image.attr('x', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
+                image.attr('y', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
+                image.attr('width', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
+                image.attr('height', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
+            }
+        }
+
         if (hoverIn) {
             var value;
             if (d.source) {
