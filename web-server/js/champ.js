@@ -3,7 +3,7 @@
 var EXPANDED_COLOR = 'lightsteelblue',
     COLLAPSED_COLOR = 'white',
     IMAGE_WIDTH = 20,
-    STROKE_MIN = 10,
+    STROKE_MIN = 5,
     STROKE_MAX = 40,
     LAYER_SPACING = 100;
 
@@ -59,11 +59,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     }
 
     var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.weight ? largestValue : elem.weight; }, 0);
-    var strokeScale = d3.scale.sqrt()
+    var strokeScale = d3.scale.linear()
         .domain([0, 1])
         .range([STROKE_MIN, STROKE_MAX])
         .clamp(true);
-    var widthScale = d3.scale.sqrt()
+    var widthScale = d3.scale.linear()
         .domain([0, 1])
         .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
         .clamp(true);
