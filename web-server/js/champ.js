@@ -191,7 +191,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
     function multiScaler(isStroke, d) {
         var func = isStroke ? strokeScale : widthScale;
-        var element = d.target ? d.target : d;
+        var element = d.target || d;
 
         // return modifier * func(element.weight /
         //     (element.parent ?
@@ -202,7 +202,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
     // Toggle children on click.
     function click(d) {
-        var element = d.target || d;
+        var element = d.source || d;
         if (!element.children && element._children.length === 0) { // Trying to expand _collapsed_ node with no children
             alert('' + element.name + ' has no further item purchases');
             return;
