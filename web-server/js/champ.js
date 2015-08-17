@@ -5,7 +5,8 @@ var EXPANDED_COLOR = 'lightsteelblue',
     IMAGE_WIDTH = 20,
     STROKE_MIN = 5,
     STROKE_MAX = 40,
-    LAYER_SPACING = 100;
+    LAYER_SPACING = 100,
+    MIN_IMAGE_WIDTH = 12;
 
 function sortNorm(a, b) {
     return b.weight - a.weight;
@@ -130,10 +131,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
         nodeUpdate.select('image')
-            .attr('x', function(d) { return -1 * multiScaler(true, d) / 2; })
-            .attr('y', function(d) { return -1 * multiScaler(true, d) / 2; })
-            .attr('height', multiScaler.bind(null, true))
-            .attr('width', multiScaler.bind(null, true));
+            .attr('x', function(d) { return -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('y', function(d) { return -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('height', function(d) { return Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH); })
+            .attr('width', function(d) { return Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH); });
 
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
