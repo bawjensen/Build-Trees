@@ -2,12 +2,14 @@ var BUILD_PERCENT_THRESHOLD = 0.075;
 
 function Node() {
     this.count = 0;
+    this.endedHere = 0;
     this.children = {};
 }
 
 function Trie() {
     this.head = new Node();
 }
+
 Trie.prototype.insert = function(item_build) {
     var node = this.head;
     ++node.count;
@@ -20,18 +22,33 @@ Trie.prototype.insert = function(item_build) {
         ++node.children[item].count; // Counts all parts of a build
         node = node.children[item];
     }
+
+    ++node.endedHere;
 };
 
-function recursivePrune(node, threshold) {
+function comp(a, b) {
+    return b[0] - a[0];
+}
+function recursivePrune(node, numToKeep) {
+    if (Object.keys(node.children).length === 0) return;
+
+    let sortable = [];
     for (let key in node.children) {
-        if ((node.children[key].count / node.count) < threshold)
-            delete node.children[key];
-        else
-            recursivePrune(node.children[key], threshold);
+        sortable.push([node.children[key].count, key]);
+    }
+    sortable.sort(comp);
+
+    for (let i = 0; i < numToKeep && i < sortable.length; ++i) {
+        if (node.children[ sortable[i][1] ].count >= 3) {
+            recursivePrune( node.children[ sortable[i][1] ], numToKeep );
+        }
+    }
+    for (let i = numToKeep; i < sortable.length; ++i) {
+        delete node.children[ sortable[i][1] ];
     }
 }
-Trie.prototype.prune = function(threshold) {
-    recursivePrune(this.head, threshold);
+Trie.prototype.prune = function(numToKeep) {
+    recursivePrune(this.head, numToKeep);
 }
 
 function recursiveToString(node, count, buildSoFar, buffer, staticItemData) {
@@ -78,6 +95,16 @@ Trie.prototype.toJSON = function(champName, staticItemData) {
     }
 
     return JSON.stringify(data);
+}
+
+function recursiveBubble(node, partialsCount) {
+    node.count += partialsCount;
+    for (var key in node.children) {
+        recursiveBubble(node.children[key], partialsCount + node.endedHere);
+    }
+}
+Trie.prototype.bubblePartialBuilds = function() {
+    recursiveBubble(this.head, 0);
 }
 
 function recursiveToTreeJSON(node, tree, staticItemData) {

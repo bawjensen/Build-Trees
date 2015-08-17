@@ -1,4 +1,4 @@
-// var jsonData = {'name':'Kalista','weight':13,'children':[{'name':'The Bloodthirster','weight':6,'children':[{'name':'Phantom Dancer','weight':1,'children':[{'name':'Runaan\'s Hurricane (Ranged Only)','weight':1,'children':[{'name':'Infinity Edge','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'Runaan\'s Hurricane (Ranged Only)','weight':5,'children':[{'name':'Infinity Edge','weight':2,'children':[{'name':'Statikk Shiv','weight':1,'children':[{'name':'','weight':0,'children':[]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]}]},{'name':'Runaan\'s Hurricane (Ranged Only)','weight':4,'children':[{'name':'The Bloodthirster','weight':2,'children':[{'name':'Infinity Edge','weight':1,'children':[{'name':'Statikk Shiv','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'Blade of the Ruined King','weight':1,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]}]},{'name':'Blade of the Ruined King','weight':3,'children':[{'name':'The Bloodthirster','weight':1,'children':[{'name':'\'s Hurricane (Ranged Only)','weight':1,'children':[{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'Runaan\'s Hurricane (Ranged Only)','weight':2,'children':[{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'The Bloodthirster','weight':1,'children':[{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]}]}]}]};
+"use strict";
 
 var EXPANDED_COLOR = 'lightsteelblue',
     COLLAPSED_COLOR = 'white',
@@ -58,13 +58,16 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
       }
     }
 
-    var maxWeight = jsonData.weight;
+    console.log(jsonData.children);
+    var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.weight ? largestValue : elem.weight; }, 0);
     var strokeScale = d3.scale.sqrt()
         .domain([0, 1])
-        .range([0, STROKE_MAX]);
+        .range([0, STROKE_MAX])
+        .clamp(true);
     var radiusScale = d3.scale.sqrt()
         .domain([0, 1])
-        .range([0, STROKE_MAX / 2]);
+        .range([0, STROKE_MAX / 2])
+        .clamp(true);
 
     root.children.forEach(collapse);
     update(root);
@@ -154,8 +157,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // Enter any new links at the parent's previous position.
         link.enter().insert('path', 'g')
-            .on('mouseover', hover.bind(null, true))
-            .on('mouseout', hover.bind(null, false))
+            // .on('mouseover', hover.bind(null, true))
+            // .on('mouseout', hover.bind(null, false))
             .attr('class', 'link')
             .attr('d', function(d) {
                 var o = {x: source.x0, y: source.y0};
@@ -189,17 +192,15 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         var modifier = inv ? -1 : 1;
         var element = d.target ? d.target : d;
 
-        return modifier * func(element.weight /
-            (element.parent ?
-                biggestChild(element.parent, reverseSort).weight :
-                maxWeight));
+        // return modifier * func(element.weight /
+        //     (element.parent ?
+        //         biggestChild(element.parent, reverseSort).weight :
+        //         maxWeight));
+        return modifier * func(element.weight / maxWeight);
     }
 
     // Toggle children on click.
     function click(d) {
-        console.log('click');
-        console.log(d.children);
-        console.log(d._children);
         if (!d.children && d._children.length === 0) { // Trying to expand _collapsed_ node with no children
             alert('' + d.name + ' has no further item purchases');
             return;
@@ -219,15 +220,13 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             d.children = d._children;
             d._children = null;
         }
-        console.log(d.children);
-        console.log(d._children);
         update(d);
     }
 
     // Show tooltip on hover
     var tooltip = d3.select('#tooltip');
     var tooltipText = d3.select('#tooltip .mdl-card__title-text');
-    var tooltipValue = d3.select('#tooltip .mdl-card__supporting-text-text');
+    var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
     function hover(hoverIn, d) {
         if (hoverIn) {
             var value;
@@ -243,8 +242,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             tooltipValue.text('x' + value);
 
             tooltip.classed('visible', true)
-                .style('left', (d3.event.pageX) + 'px')
-                .style('top', (d3.event.pageY + 15) + 'px');
+                .style('left', (d3.event.pageX - 165) + 'px')
+                .style('top', (d3.event.pageY + 20) + 'px');
         }
         else {
             tooltip.classed('visible', false);
@@ -253,5 +252,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     }
 }
 
-plot(dataBefore, itemBefore, champBefore, '#before-container', true);
-plot(dataAfter, itemAfter, champBefore, '#after-container', false);
+if (!(dataBefore && dataAfter)) {
+    alert('There doesn\'t seem to be enough data for this champion.');
+}
+else {
+    plot(dataBefore, itemBefore, champBefore, '#before-container', true);
+    plot(dataAfter, itemAfter, champBefore, '#after-container', false);
+}
