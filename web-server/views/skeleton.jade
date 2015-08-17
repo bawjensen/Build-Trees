@@ -6,10 +6,14 @@ html
 
     link(href='https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en' rel='stylesheet')
 
+    script(src='https://code.jquery.com/jquery-2.1.4.min.js')
+
     link(rel='stylesheet' href='https://storage.googleapis.com/code.getmdl.io/1.0.2/material.teal-green.min.css')
     script(src='https://storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js')
     link(rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    
     link(rel='stylesheet' href='/css/style.css')
+    script(src='/js/script.js')
 
     block head-content
 
@@ -25,8 +29,12 @@ html
               label.mdl-button.mdl-js-button.mdl-button--icon(for='search')
                 i.material-icons search
               .mdl-textfield__expandable-holder
-                input#search.mdl-textfield__input(type='text')
+                input#search.mdl-textfield__input(type='search' list='champions')
                 label.mdl-textfield__label(for='search') Enter your query...
+
+            datalist#champions
+              for champObj in champBefore.data
+                option(value=champObj.name)
       
       main.mdl-layout__content
         block body-content

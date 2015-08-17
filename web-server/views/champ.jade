@@ -29,10 +29,10 @@ block body-content
 
   script(src='/js/d3/d3.min.js')
   script.
-    var itemBefore    = !{itemBefore},
-        itemAfter     = !{itemAfter},
-        champBefore   = !{champBefore},
-        champAfter    = !{champAfter},
-        dataBefore    = !{dataBefore ? dataBefore : 'false'},
-        dataAfter     = !{dataAfter ? dataAfter : 'false'};
+    var itemBefore    = !{JSON.stringify(itemBefore)},
+        itemAfter     = !{JSON.stringify(itemAfter)},
+        champBefore   = !{JSON.stringify(champBefore)},
+        champAfter    = !{JSON.stringify(champAfter)},
+        dataBefore    = !{JSON.stringify(dataBefore ? dataBefore : false)},
+        dataAfter     = !{JSON.stringify(dataAfter ? dataAfter : false)};
   script(src='/js/champ.js')

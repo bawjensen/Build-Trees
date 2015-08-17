@@ -57,10 +57,10 @@ mainRouter.route('/')
             ])
             .then(function(filesObj) {
                 res.render('index.jade',  {
-                    champBefore: JSON.parse(filesObj['champBefore'])
+                    champBefore: filesObj['champBefore']
                 });
             })
-            .catch(function(err) { res.status(500).send(500); });
+            .catch(function(err) { console.log(err.stack); res.sendStatus(500); });
     });
 
 mainRouter.route('/:champName')
@@ -83,7 +83,7 @@ mainRouter.route('/:champName')
                     dataAfter:      filesObj['dataAfter']
                 });
             })
-            .catch(function(err) { res.status(500).send(500); });
+            .catch(function(err) { console.log(err.stack); res.sendStatus(500); });
     });
 
 

@@ -42,7 +42,7 @@ function readMultipleFiles(iterable) {
     var filesObj = {};
     return Promise.all(
             iterable.map(function(tuple) {
-                return read(tuple[0]).catch(function(err) { return null; }).then(function(jsonData) { filesObj[tuple[1]] = jsonData; });
+                return read(tuple[0]).then(JSON.parse).catch(function(err) { return null; }).then(function(jsonData) { filesObj[tuple[1]] = jsonData; });
             })
         )
         .then(function() {
