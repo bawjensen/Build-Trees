@@ -26,6 +26,37 @@ Trie.prototype.insert = function(item_build) {
     ++node.endedHere;
 };
 
+// More "true", but things become too tiny
+function recursiveNormalize_v2(node, numToKeep) {
+    var shortedRatio;
+    if (Object.keys(node.children).length !== 0) {
+        let childrenSum = (node.count - node.endedHere);
+        shortedRatio = ((node.endedHere * numToKeep) + childrenSum) / childrenSum;
+    }
+
+    for (var key in node.children) {
+        node.children[key].count = Math.round(node.children[key].count * shortedRatio);
+        recursiveNormalize_v2(node.children[key], numToKeep);
+    }
+}
+// Makes everything more visible, but downside is children are sometimes bigger than parents
+function recursiveNormalize(node, numToKeep, cumulativeShorted) {
+    if (Object.keys(node.children).length !== 0) {
+        var childrenSum = (node.count - node.endedHere);
+        var shouldBe = ((node.endedHere + cumulativeShorted) * numToKeep) + childrenSum;
+        var shortedRatio = shouldBe / childrenSum;
+    }
+
+    for (var key in node.children) {
+        recursiveNormalize(node.children[key], numToKeep, cumulativeShorted + node.endedHere);
+        node.children[key].count = Math.round(node.children[key].count * shortedRatio);
+    }
+}
+Trie.prototype.normalizePartialBuilds = function(numToKeep) {
+    recursiveNormalize_v2(this.head, numToKeep);
+    // recursiveNormalize_v2(this.head, numToKeep, 0);
+}
+
 function comp(a, b) {
     return b[0] - a[0];
 }
@@ -48,26 +79,8 @@ function recursivePrune(node, numToKeep) {
     }
 }
 Trie.prototype.prune = function(numToKeep) {
+    this.normalizePartialBuilds(numToKeep);
     recursivePrune(this.head, numToKeep);
-}
-
-function recursiveToString(node, count, buildSoFar, buffer, staticItemData) {
-    if (!Object.keys(node.children).length)
-        buffer.str += buildSoFar + '\n';
-        // buffer.str += buildSoFar + ': ' + count + '\n';
-
-    for (var key in node.children) {
-        recursiveToString(node.children[key], // Recurse on child
-            count + node.children[key].count, // Add the count for all partial builds to the final build
-            buildSoFar + ' =' + node.children[key].count + '=> ' + (key in staticItemData ? staticItemData[key].name : ''), // Append the name of the build, so we can print it
-            buffer, // Pass along the buffer that we're building up
-            staticItemData); // Pass along the static data
-    }
-}
-Trie.prototype.toString = function(staticItemData) {
-    var buffer = { str: '' };
-    recursiveToString(this.head, 0, '', buffer, staticItemData);
-    return buffer.str;
 }
 
 function recursiveToJSON(node, data, parentIndex, parentCount, nodeLabel, staticItemData) {

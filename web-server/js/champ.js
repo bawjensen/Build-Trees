@@ -3,6 +3,7 @@
 var EXPANDED_COLOR = 'lightsteelblue',
     COLLAPSED_COLOR = 'white',
     IMAGE_WIDTH = 20,
+    STROKE_MIN = 10,
     STROKE_MAX = 40,
     LAYER_SPACING = 100;
 
@@ -15,7 +16,6 @@ function sortReverse(a, b) {
 }
 
 function biggestChild(element, reverseSort) {
-    if (!element.children) console.log(element);
     var index = reverseSort ? element.children.length-1 : 0;
     return element.children[index];
 }
@@ -58,15 +58,14 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
       }
     }
 
-    console.log(jsonData.children);
     var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.weight ? largestValue : elem.weight; }, 0);
     var strokeScale = d3.scale.sqrt()
         .domain([0, 1])
-        .range([0, STROKE_MAX])
+        .range([STROKE_MIN, STROKE_MAX])
         .clamp(true);
-    var radiusScale = d3.scale.sqrt()
+    var widthScale = d3.scale.sqrt()
         .domain([0, 1])
-        .range([0, STROKE_MAX / 2])
+        .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
         .clamp(true);
 
     root.children.forEach(collapse);
@@ -101,7 +100,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
         // nodeEnter.append('text')
-        //     .attr('x', function(d) { return radiusScale(d.weight); })
+        //     .attr('x', function(d) { return widthScale(d.weight); })
         //     .attr('dy', '.35em')
         //     .attr('text-anchor', function(d) { return 'start'; })
         //     .text(function(d) { return d.name; })
@@ -113,7 +112,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('y', 1e-6)
             .attr('height', 1e-6)
             .attr('width', 1e-6)
-            // .style('border-radius', function(d) { return radiusScale(d.weight) / 2; })
+            // .style('border-radius', function(d) { return widthScale(d.weight) / 2; })
             .attr('xlink:href', function(d) {
                 if (d.itemId)
                     return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/item/' + staticItemData.data[d.itemId].image.full);
@@ -127,14 +126,14 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
         // nodeUpdate.select('circle')
-        //     .attr('r', multiScaler.bind(null, true, false))
+        //     .attr('r', multiScaler.bind(null, false))
         //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
         nodeUpdate.select('image')
-            .attr('x', multiScaler.bind(null, true, true))
-            .attr('y', multiScaler.bind(null, true, true))
-            .attr('height', multiScaler.bind(null, false, false))
-            .attr('width', multiScaler.bind(null, false, false));
+            .attr('x', function(d) { return -1 * multiScaler(true, d) / 2; })
+            .attr('y', function(d) { return -1 * multiScaler(true, d) / 2; })
+            .attr('height', multiScaler.bind(null, true))
+            .attr('width', multiScaler.bind(null, true));
 
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
@@ -162,9 +161,9 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('class', 'link')
             .attr('d', function(d) {
                 var o = {x: source.x0, y: source.y0};
-                return diagonal({source: o, target: o});
+                return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', multiScaler.bind(null, false, false));
+            .style('stroke-width', multiScaler.bind(null, true));
 
         // Transition links to their new position.
         link.transition()
@@ -176,9 +175,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .duration(duration)
             .attr('d', function(d) {
                 var o = {x: source.x, y: source.y};
-                return diagonal({source: o, target: o});
+                return diagonal({ source: o, target: o });
             })
             .remove();
+
 
         // Stash the old positions for transition.
         nodes.forEach(function(d) {
@@ -187,16 +187,15 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             });
     }
 
-    function multiScaler(isRadius, inv, d) {
-        var func = isRadius ? radiusScale : strokeScale;
-        var modifier = inv ? -1 : 1;
+    function multiScaler(isStroke, d) {
+        var func = isStroke ? strokeScale : widthScale;
         var element = d.target ? d.target : d;
 
         // return modifier * func(element.weight /
         //     (element.parent ?
         //         biggestChild(element.parent, reverseSort).weight :
         //         maxWeight));
-        return modifier * func(element.weight / maxWeight);
+        return func(element.weight / maxWeight);
     }
 
     // Toggle children on click.

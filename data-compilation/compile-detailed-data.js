@@ -102,7 +102,7 @@ function fetchAndStore() {
             console.log('Got', Object.keys(champItemBuilds).length, 'builds');
 
             for (var championId in champItemBuilds) {
-                champItemBuilds[championId].bubblePartialBuilds();
+                // champItemBuilds[championId].bubblePartialBuilds();
                 champItemBuilds[championId].prune(4);
     
                 var champName = champNameConverter[''+championId].name;
