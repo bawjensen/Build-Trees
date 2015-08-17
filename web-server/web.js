@@ -32,6 +32,7 @@ app.set('port', (process.env.PORT || argv.port || 5000));
 // // app.use(cookieParser());
 
 // Static serving files from specific folders
+app.use('/riot.txt',    express.static(__dirname + '/riot.txt'));
 app.use('/favicon.ico', express.static(__dirname + '/img/favicon.png'));
 app.use('/css',         express.static(__dirname + '/css'));
 app.use('/js',          express.static(__dirname + '/js'));
