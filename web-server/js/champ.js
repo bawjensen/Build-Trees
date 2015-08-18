@@ -152,13 +152,16 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     .style('fill-opacity', 1e-6);
 
         // Update the links…
-        var link = svg.selectAll('path.link')
+        var linkNode = svg.selectAll('g.linkNode')
             .data(links, function(d) { return d.target.id; });
 
         // Enter any new links at the parent's previous position.
-        link.enter().insert('path', 'g')
+        var linkNodeEnter = linkNode.enter().insert('g', 'g')
             // .on('mouseover', hover.bind(null, true))
             // .on('mouseout', hover.bind(null, false))
+            .attr('class', 'linkNode');
+
+        linkNodeEnter.append('path')
             .attr('class', 'link')
             .attr('d', function(d) {
                 var o = {x: source.x0, y: source.y0};
@@ -167,19 +170,36 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .style('stroke-width', multiScaler.bind(null, true))
             .on('click', click);
 
+        linkNodeEnter.append('text')
+            .attr('x', function(d) { return d.source.x0; })
+            .attr('y', function(d) { return d.source.y0; })
+            .attr('text-anchor', 'middle')
+            .text(function(d) { return d.target.weight });
+
         // Transition links to their new position.
-        link.transition()
-            .duration(duration)
+        var linkNodeUpdate = linkNode.transition().duration(duration);
+
+        linkNodeUpdate.select('path.link')
             .attr('d', diagonal);
 
+        linkNodeUpdate.select('text')
+            .attr('x', function(d) { return d.source.x + (d.target.x - d.source.x) * 0.625; })
+            .attr('y', function(d) { return d.source.y + (d.target.y - d.source.y) * 0.625; });
+
+
         // Transition exiting nodes to the parent's new position.
-        link.exit().transition()
-            .duration(duration)
+        var linkNodeExit = linkNode.exit().transition().duration(duration)
+            .remove();
+
+        linkNodeExit.select('path.link')
             .attr('d', function(d) {
                 var o = {x: source.x, y: source.y};
                 return diagonal({ source: o, target: o });
-            })
-            .remove();
+            });
+
+        linkNodeExit.select('text')
+            .attr('x', function(d) { return d.source.x; })
+            .attr('y', function(d) { return d.source.y; });
 
 
         // Stash the old positions for transition.
@@ -193,11 +213,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         var func = isStroke ? strokeScale : widthScale;
         var element = d.target || d;
 
-        return func(element.weight /
-            (element.parent ?
-                biggestChild(element.parent, reverseSort).weight :
-                maxWeight));
-        // return func(element.weight / maxWeight);
+        // return func(element.weight /
+        //     (element.parent ?
+        //         biggestChild(element.parent, reverseSort).weight :
+        //         maxWeight));
+        return func(element.weight / maxWeight);
     }
 
     // Toggle children on click.
@@ -231,7 +251,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
     function hover(hoverIn, d, that) {
         if (that) {
-            var image = d3.select(that);
+            var image = d3.select(that).transition().duration(duration / 4);
             if (hoverIn) {
                 image.attr('x', -STROKE_MAX / 2);
                 image.attr('y', -STROKE_MAX / 2);
@@ -261,7 +281,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
             tooltip.classed('visible', true)
                 .style('left', (d3.event.pageX - 165) + 'px')
-                .style('top', (d3.event.pageY + 20) + 'px');
+                .style('top', (d3.event.pageY + 40) + 'px');
         }
         else {
             tooltip.classed('visible', false);
