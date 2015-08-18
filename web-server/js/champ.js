@@ -64,10 +64,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .domain([0, 1])
         .range([STROKE_MIN, STROKE_MAX])
         .clamp(true);
-    var widthScale = d3.scale.linear()
-        .domain([0, 1])
-        .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
-        .clamp(true);
+    // var widthScale = d3.scale.linear()
+    //     .domain([0, 1])
+    //     .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
+    //     .clamp(true);
 
     root.children.forEach(collapse);
     update(root);
@@ -107,8 +107,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     .text(function(d) { return d.name; })
         //     .style('fill-opacity', 1e-6);
         nodeEnter.append('image')
-            .on('mouseover.image', function(d) { return zoomImage(true, d, this); })
-            .on('mouseout.image', function(d) { return zoomImage(false, d, this); })
+            .on('mouseover.image', zoomImage.bind(null, true))
+            .on('mouseout.image', zoomImage.bind(null, false))
             .on('mouseover.tooltip', toggleTooltip.bind(null, true))
             .on('mouseout.tooltip', toggleTooltip.bind(null, false))
             .attr('id', function(d) { return 'image_' + d.id; })
@@ -134,10 +134,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
         nodeUpdate.select('image')
-            .attr('x', function(d) { return -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2; })
-            .attr('y', function(d) { return -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2; })
-            .attr('height', function(d) { return Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH); })
-            .attr('width', function(d) { return Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH); });
+            .attr('x', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('y', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('height', function(d) { return Math.max(multiScaler(d), MIN_IMAGE_WIDTH); })
+            .attr('width', function(d) { return Math.max(multiScaler(d), MIN_IMAGE_WIDTH); });
 
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
@@ -156,11 +156,13 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // Enter any new links at the parent's previous position.
         var linkNodeEnter = linkNode.enter().insert('g', 'g')
-            // .on('mouseover', toggleTooltip.bind(null, true))
-            // .on('mouseout', toggleTooltip.bind(null, false))
-            .attr('class', 'linkNode')/*
-            .on('mouseover.image', function(d) { return zoomImage(true, d, this); })
-            .on('mouseout.image', function(d) { return zoomImage(false, d, this); })*/;
+            .attr('class', 'linkNode')
+            .on('mouseover.textZoom', function(d) { return zoomText(true, d, this); })
+            .on('mouseout.textZoom', function(d) { return zoomText(false, d, this); })/*
+            .on('mouseover', toggleTooltip.bind(null, true))
+            .on('mouseout', toggleTooltip.bind(null, false))
+            .on('mouseover.image', zoomImage.bind(null, true))
+            .on('mouseout.image', zoomImage.bind(null, false))*/;
 
         linkNodeEnter.append('path')
             .attr('class', 'link')
@@ -168,7 +170,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 var o = { x: source.x0, y: source.y0 };
                 return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', multiScaler.bind(null, true))
+            .style('stroke-width', multiScaler)
             .on('click', click);
 
         linkNodeEnter.append('text')
@@ -187,6 +189,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         linkNodeUpdate.select('text')
             .attr('fill-opacity', 1)
+            .attr('font-size', function(d) { return multiScaler(d) * 0.75; })
             .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
             .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
 
@@ -215,8 +218,9 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         });
     }
 
-    function multiScaler(isStroke, d) {
-        var func = isStroke ? strokeScale : widthScale;
+    function multiScaler(d) {
+        // var func = isStroke ? strokeScale : widthScale;
+        var func = strokeScale;
         var element = d.target || d;
 
         // return func(element.weight /
@@ -251,19 +255,32 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         update(element);
     }
 
-    function zoomImage(hoverIn, d, that) {
-        var image = d3.select('#image_' + (d.target || d).id).transition().duration(duration / 4);
+    // Scale text up on hover
+    function zoomText(hoverIn, d, that) {
+        console.log(that);
+        var text = d3.select(that).select('text').transition().duration(duration / 4);
         if (hoverIn) {
-            image.attr('x', -STROKE_MAX / 2);
-            image.attr('y', -STROKE_MAX / 2);
-            image.attr('width', STROKE_MAX);
-            image.attr('height', STROKE_MAX);
+            text.attr('font-size', STROKE_MAX * 0.75);
         }
         else {
-            image.attr('x', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
-            image.attr('y', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
-            image.attr('width', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
-            image.attr('height', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
+            text.attr('font-size', multiScaler(d) * 0.75);
+        }
+    }
+
+    // Scale image up on hover
+    function zoomImage(hoverIn, d) {
+        var image = d3.select('#image_' + (d.target || d).id).transition().duration(duration / 4);
+        if (hoverIn) {
+            image.attr('x', -STROKE_MAX / 2)
+                .attr('y', -STROKE_MAX / 2)
+                .attr('width', STROKE_MAX)
+                .attr('height', STROKE_MAX);
+        }
+        else {
+            image.attr('x', -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2)
+                .attr('y', -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2)
+                .attr('width', Math.max(multiScaler(d), MIN_IMAGE_WIDTH))
+                .attr('height', Math.max(multiScaler(d), MIN_IMAGE_WIDTH));
         }
     }
 
