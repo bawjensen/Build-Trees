@@ -7,6 +7,7 @@ var EXPANDED_COLOR = 'lightsteelblue',
     STROKE_MAX = 40,
     LAYER_SPACING = 100,
     MIN_IMAGE_WIDTH = 12,
+    TEXT_RELATIVE_SCALE = 0.625,
     lastId = 0;
 
 function sortNorm(a, b) {
@@ -63,6 +64,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     var strokeScale = d3.scale.linear()
         .domain([0, 1])
         .range([STROKE_MIN, STROKE_MAX])
+        .clamp(true);
+    var textLabelScale = d3.scale.linear()
+        .domain([0, 1])
+        .range([STROKE_MIN, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
     // var widthScale = d3.scale.linear()
     //     .domain([0, 1])
@@ -156,9 +161,9 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // Enter any new links at the parent's previous position.
         var linkNodeEnter = linkNode.enter().insert('g', 'g')
-            .attr('class', 'linkNode')
+            .attr('class', 'linkNode')/*
             .on('mouseover.textZoom', function(d) { return zoomText(true, d, this); })
-            .on('mouseout.textZoom', function(d) { return zoomText(false, d, this); })/*
+            .on('mouseout.textZoom', function(d) { return zoomText(false, d, this); })
             .on('mouseover', toggleTooltip.bind(null, true))
             .on('mouseout', toggleTooltip.bind(null, false))
             .on('mouseover.image', zoomImage.bind(null, true))
@@ -179,7 +184,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
             .attr('fill-opacity', 1e-6)
-            .text(function(d) { return d.target.weight });
+            .attr('font-size', function(d) { return multiScaler(d, true); })
+            .text(function(d) { return d.target.weight; });
 
         // Transition links to their new position.
         var linkNodeUpdate = linkNode.transition().duration(duration);
@@ -189,7 +195,6 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         linkNodeUpdate.select('text')
             .attr('fill-opacity', 1)
-            .attr('font-size', function(d) { return multiScaler(d) * 0.75; })
             .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
             .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
 
@@ -198,6 +203,9 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         var linkNodeExit = linkNode.exit().transition().duration(duration)
             .remove();
 
+        // Changes without delay
+        linkNode.exit().select('text').attr('fill-opacity', 1e-6);
+
         linkNodeExit.select('path.link')
             .attr('d', function(d) {
                 var o = { x: source.x, y: source.y };
@@ -205,7 +213,6 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             });
 
         linkNodeExit.select('text')
-            // .transition().duration(duration)
             .attr('fill-opacity', 1e-6);
             // .attr('x', function(d) { return d.source.x; })
             // .attr('y', function(d) { return d.source.y; });
@@ -218,9 +225,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         });
     }
 
-    function multiScaler(d) {
-        // var func = isStroke ? strokeScale : widthScale;
-        var func = strokeScale;
+    function multiScaler(d, isText) {
+        var func = isText ? textLabelScale : strokeScale;
         var element = d.target || d;
 
         // return func(element.weight /
@@ -255,17 +261,16 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         update(element);
     }
 
-    // Scale text up on hover
-    function zoomText(hoverIn, d, that) {
-        console.log(that);
-        var text = d3.select(that).select('text').transition().duration(duration / 4);
-        if (hoverIn) {
-            text.attr('font-size', STROKE_MAX * 0.75);
-        }
-        else {
-            text.attr('font-size', multiScaler(d) * 0.75);
-        }
-    }
+    // // Scale text up on hover
+    // function zoomText(hoverIn, d, that) {
+    //     var text = d3.select(that).transition().duration(duration).select('text');
+    //     if (hoverIn) {
+    //         text.attr('font-size', STROKE_MAX * TEXT_RELATIVE_SCALE);
+    //     }
+    //     else {
+    //         text.attr('font-size', multiScaler(d, true));
+    //     }
+    // }
 
     // Scale image up on hover
     function zoomImage(hoverIn, d) {
@@ -291,20 +296,20 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     function toggleTooltip(hoverIn, d) {
         if (hoverIn) {
             var value;
-            if (d.source) {
-                value = d.target._weight ? d.target._weight : d.target.weight;
-                tooltipText.text(d.source.name + ' -> ' + d.target.name);
-            }
-            else {
+            // if (d.source) {
+            //     value = d.target._weight ? d.target._weight : d.target.weight;
+            //     tooltipText.text(d.source.name + ' -> ' + d.target.name);
+            // }
+            // else {
                 value = d._weight ? d._weight : d.weight;
                 tooltipText.text(d.name);
-            }
+            // }
 
             tooltipValue.text('x' + value);
 
             tooltip.classed('visible', true)
                 .style('left', (d3.event.pageX - 165) + 'px')
-                .style('top', (d3.event.pageY + 40) + 'px');
+                .style('top', (d3.event.pageY + 30) + 'px');
         }
         else {
             tooltip.classed('visible', false);

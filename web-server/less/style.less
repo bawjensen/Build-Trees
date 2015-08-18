@@ -25,6 +25,7 @@ footer {
 
 .champDiv {
   text-align: center;
+  white-space: nowrap;
   min-height: 0;
 
   img {
@@ -100,6 +101,16 @@ svg {
     @link-color: #8FA2B1;
     cursor: default;
 
+    &:hover {
+      .link {
+        stroke-opacity: 0.75;
+      }
+
+      text {
+        font-size: 30px;
+      }
+    }
+
     .link {
       fill: none;
       stroke: @link-color;
@@ -108,12 +119,10 @@ svg {
       stroke-linecap: round;
     }
 
-    &:hover .link {
-      stroke-opacity: 0.75;
-    }
-
     text {
       fill: darken(@link-color, 20%);
+      transition-name: font-size;
+      transition-duration: .25s;
     }
   }
 }
