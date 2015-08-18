@@ -6,7 +6,8 @@ var EXPANDED_COLOR = 'lightsteelblue',
     STROKE_MIN = 5,
     STROKE_MAX = 40,
     LAYER_SPACING = 100,
-    MIN_IMAGE_WIDTH = 12;
+    MIN_IMAGE_WIDTH = 12,
+    lastId = 0;
 
 function sortNorm(a, b) {
     return b.weight - a.weight;
@@ -26,8 +27,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
       width = d3.select(containerSelector).node().getBoundingClientRect().width - margin.right - margin.left,
       height = (LAYER_SPACING * 7) - margin.top - margin.bottom;
 
-    var i = 0,
-      duration = 750,
+    var duration = 750,
       root;
 
     var tree = d3.layout.tree()
@@ -86,7 +86,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // Update the nodes
         var node = svg.selectAll('g.node')
-            .data(nodes, function(d) { return d.id || (d.id = ++i); });
+            .data(nodes, function(d) { return d.id || (d.id = ++lastId); });
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append('g')
