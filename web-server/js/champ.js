@@ -142,14 +142,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
             .remove();
 
-        // nodeExit.select('circle')
-        //     .attr('r', 1e-6);
         nodeExit.select('image')
             .attr('width', 1e-6)
             .attr('height', 1e-6);
 
-        // nodeExit.select('text')
-        //     .style('fill-opacity', 1e-6);
 
         // Update the links…
         var linkNode = svg.selectAll('g.linkNode')
@@ -164,7 +160,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         linkNodeEnter.append('path')
             .attr('class', 'link')
             .attr('d', function(d) {
-                var o = {x: source.x0, y: source.y0};
+                var o = { x: source.x0, y: source.y0 };
                 return diagonal({ source: o, target: o });
             })
             .style('stroke-width', multiScaler.bind(null, true))
@@ -174,6 +170,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('x', function(d) { return d.source.x0; })
             .attr('y', function(d) { return d.source.y0; })
             .attr('text-anchor', 'middle')
+            .attr('dy', '.35em')
             .text(function(d) { return d.target.weight });
 
         // Transition links to their new position.
@@ -183,8 +180,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('d', diagonal);
 
         linkNodeUpdate.select('text')
-            .attr('x', function(d) { return d.source.x + (d.target.x - d.source.x) * 0.625; })
-            .attr('y', function(d) { return d.source.y + (d.target.y - d.source.y) * 0.625; });
+            .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
+            .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
 
 
         // Transition exiting nodes to the parent's new position.
@@ -193,7 +190,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         linkNodeExit.select('path.link')
             .attr('d', function(d) {
-                var o = {x: source.x, y: source.y};
+                var o = { x: source.x, y: source.y };
                 return diagonal({ source: o, target: o });
             });
 
