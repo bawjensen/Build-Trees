@@ -97,8 +97,9 @@ function persistentGet(url, identifier) {
         .catch(function(err) {
             if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
                 console.error('\rIssue with:', url, '\n', err);
-                return persistentGet(url, identifier);
-                // request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
+                return new Promise(function get(resolve, reject) {
+                    request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
+                });
             }
             else {
                 throw err;
