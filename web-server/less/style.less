@@ -96,15 +96,24 @@ svg {
   //   font: 10px sans-serif;
   // }
 
-  .link {
-    fill: none;
-    stroke: #8FA2B1;
-    stroke-width: 1.5px;
-    stroke-opacity: 0.375;
-    stroke-linecap: round;
-  }
+  .linkNode {
+    @link-color: #8FA2B1;
+    cursor: default;
 
-  .link:hover {
-    stroke-opacity: 0.75;
+    .link {
+      fill: none;
+      stroke: @link-color;
+      stroke-width: 1.5px;
+      stroke-opacity: 0.375;
+      stroke-linecap: round;
+    }
+
+    &:hover .link {
+      stroke-opacity: 0.75;
+    }
+
+    text {
+      fill: darken(@link-color, 20%);
+    }
   }
 }
