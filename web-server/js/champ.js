@@ -170,8 +170,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 var o = { x: source.x0, y: source.y0 };
                 return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', multiScaler)
-            .on('click', click);
+            .style('stroke-width', multiScaler)/*
+            .on('click', click)*/;
 
         linkNodeEnter.append('text')
             .attr('x', function(d) { return d.source.x0; })
