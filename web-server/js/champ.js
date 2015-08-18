@@ -158,9 +158,9 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         var linkNodeEnter = linkNode.enter().insert('g', 'g')
             // .on('mouseover', toggleTooltip.bind(null, true))
             // .on('mouseout', toggleTooltip.bind(null, false))
-            .attr('class', 'linkNode')
+            .attr('class', 'linkNode')/*
             .on('mouseover.image', function(d) { return zoomImage(true, d, this); })
-            .on('mouseout.image', function(d) { return zoomImage(false, d, this); });
+            .on('mouseout.image', function(d) { return zoomImage(false, d, this); })*/;
 
         linkNodeEnter.append('path')
             .attr('class', 'link')
