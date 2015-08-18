@@ -4,7 +4,7 @@ var promises    = require('../helpers/promised.js'),
 // --------------------------------------- Global Variables -------------------------------------
 
 var API_KEY             = process.env.RIOT_KEY;
-var DEFAULT_RATE_LIMIT  = 100;
+var DEFAULT_RATE_LIMIT  = 1000;
 var RATE_LIMIT          = DEFAULT_RATE_LIMIT;
 var MATCH_LIMIT         = process.argv[2] ? parseInt(process.argv[2]) : 10000;
 
@@ -63,7 +63,6 @@ function fetchAndStore() {
                     }
 
                     matchData.participants.forEach(function(participant) {
-                        if (participant.championId === '126') console.log('yay!');
                         for (var key in participant) {
                             if (!desiredParticipantData.has(key))
                                 delete participant[key];
