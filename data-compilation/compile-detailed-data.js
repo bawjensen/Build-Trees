@@ -99,11 +99,12 @@ function fetchAndStore() {
         })
         .then(function(champItemBuilds) {
 
-            console.log('Got', Object.keys(champItemBuilds), 'builds');
+            console.log('Got', Object.keys(champItemBuilds).length, 'builds');
 
             for (var championId in champItemBuilds) {
-                champItemBuilds[championId].prune(0.05);
-
+                // champItemBuilds[championId].bubblePartialBuilds();
+                champItemBuilds[championId].prune(4);
+    
                 var champName = champNameConverter[''+championId].name;
                 var jsonCompatibleTrie = champItemBuilds[championId].toTreeJSON(champName, staticItemData);
 
@@ -115,7 +116,13 @@ function fetchAndStore() {
         .catch(function(err) {
             console.error(err.stack);
         })
-        .then(function() { db.close(); });
+        .then(function() {
+            var end = (new Date).getTime();
+            var minutes = (end - start) / 60000;
+            console.log('Took', minutes, 'minutes');
+            db.close();
+        });
 }
 
+var start = (new Date).getTime();
 fetchAndStore();

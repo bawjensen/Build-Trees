@@ -1,5 +1,52 @@
-a.mdl-layout-title {
-  text-decoration: none;
+.mdl-layout-title {
+  .mdl-button {
+    height: 50px;
+    line-height: 52px;
+    width: 100px;
+  }
+}
+
+#introduction {
+  text-align: center;
+  min-height: 0;
+
+  .mdl-card__title {
+    text-align: center;
+  }
+}
+
+footer {
+  text-align: center;
+}
+
+.mdl-layout__content {
+  overflow: visible;
+}
+
+.champDiv {
+  text-align: center;
+  min-height: 0;
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  .mdl-card__actions {
+    .mdl-button {
+      width: 100%;
+      padding: 0;
+    }
+  }
+}
+
+.explanation {
+  text-align: center;
+  min-height: 0;
+
+  span {
+    padding: 10px 0;
+  }
 }
 
 .data-container {
@@ -28,53 +75,45 @@ a.mdl-layout-title {
     margin: 0;
   }
 
-  // #title {
-  //   font-size: 20px;
-  // }
-
-  // #value {
-  //   font-size: 20px;
-  // }
-}
-
-.champDiv {
-  text-align: center;
-  min-height: 0;
-
-  div {
-    white-space: nowrap;
-    text-align: center;
-  }
-
-  img {
-    // display: block;
-    width: 100%;
-    height: auto;
-    // width: 50px;
-    // height: auto;
-    // margin: 0 auto;
+  .mdl-card__subtitle-text {
+    font-size: 1.5em;
+    margin-left: 10px;
   }
 }
 
-.node {
-  cursor: pointer;
-}
+svg {
+  .node {
+    cursor: pointer;
+  }
 
-.node circle {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
+  // .node circle {
+  //   fill: #fff;
+  //   stroke: steelblue;
+  //   stroke-width: 1.5px;
+  // }
 
-.node text {
-  font: 10px sans-serif;
-}
+  // .node text {
+  //   font: 10px sans-serif;
+  // }
 
-.link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
-  stroke-opacity: 0.375;
-  // stroke-outline: 1px solid blue;
-  stroke-linecap: round;
+  .linkNode {
+    @link-color: #8FA2B1;
+    cursor: default;
+
+    .link {
+      fill: none;
+      stroke: @link-color;
+      stroke-width: 1.5px;
+      stroke-opacity: 0.375;
+      stroke-linecap: round;
+    }
+
+    &:hover .link {
+      stroke-opacity: 0.75;
+    }
+
+    text {
+      fill: darken(@link-color, 20%);
+    }
+  }
 }

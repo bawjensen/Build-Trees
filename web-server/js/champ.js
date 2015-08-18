@@ -1,10 +1,13 @@
-// var jsonData = {'name':'Kalista','weight':13,'children':[{'name':'The Bloodthirster','weight':6,'children':[{'name':'Phantom Dancer','weight':1,'children':[{'name':'Runaan\'s Hurricane (Ranged Only)','weight':1,'children':[{'name':'Infinity Edge','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'Runaan\'s Hurricane (Ranged Only)','weight':5,'children':[{'name':'Infinity Edge','weight':2,'children':[{'name':'Statikk Shiv','weight':1,'children':[{'name':'','weight':0,'children':[]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]}]},{'name':'Runaan\'s Hurricane (Ranged Only)','weight':4,'children':[{'name':'The Bloodthirster','weight':2,'children':[{'name':'Infinity Edge','weight':1,'children':[{'name':'Statikk Shiv','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'Blade of the Ruined King','weight':1,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]}]}]},{'name':'Blade of the Ruined King','weight':3,'children':[{'name':'The Bloodthirster','weight':1,'children':[{'name':'\'s Hurricane (Ranged Only)','weight':1,'children':[{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]}]},{'name':'Runaan\'s Hurricane (Ranged Only)','weight':2,'children':[{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[{'name':'','weight':0,'children':[]}]}]},{'name':'The Bloodthirster','weight':1,'children':[{'name':'Last Whisper','weight':1,'children':[{'name':'','weight':0,'children':[]}]}]}]}]}]};
+"use strict";
 
 var EXPANDED_COLOR = 'lightsteelblue',
     COLLAPSED_COLOR = 'white',
     IMAGE_WIDTH = 20,
+    STROKE_MIN = 5,
     STROKE_MAX = 40,
-    LAYER_SPACING = 100;
+    LAYER_SPACING = 100,
+    MIN_IMAGE_WIDTH = 12,
+    lastId = 0;
 
 function sortNorm(a, b) {
     return b.weight - a.weight;
@@ -15,7 +18,6 @@ function sortReverse(a, b) {
 }
 
 function biggestChild(element, reverseSort) {
-    if (!element.children) console.log(element);
     var index = reverseSort ? element.children.length-1 : 0;
     return element.children[index];
 }
@@ -23,10 +25,9 @@ function biggestChild(element, reverseSort) {
 function plot(jsonData, staticItemData, staticChampData, containerSelector, reverseSort) {
     var margin = {top: 20, right: 20, bottom: 20, left: 20},
       width = d3.select(containerSelector).node().getBoundingClientRect().width - margin.right - margin.left,
-      height = (LAYER_SPACING * 6) - margin.top - margin.bottom;
+      height = (LAYER_SPACING * 7) - margin.top - margin.bottom;
 
-    var i = 0,
-      duration = 750,
+    var duration = 750,
       root;
 
     var tree = d3.layout.tree()
@@ -58,13 +59,15 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
       }
     }
 
-    var maxWeight = jsonData.weight;
-    var strokeScale = d3.scale.sqrt()
+    var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.weight ? largestValue : elem.weight; }, 0);
+    var strokeScale = d3.scale.linear()
         .domain([0, 1])
-        .range([0, STROKE_MAX]);
-    var radiusScale = d3.scale.sqrt()
-        .domain([0, 1])
-        .range([0, STROKE_MAX / 2]);
+        .range([STROKE_MIN, STROKE_MAX])
+        .clamp(true);
+    // var widthScale = d3.scale.linear()
+    //     .domain([0, 1])
+    //     .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
+    //     .clamp(true);
 
     root.children.forEach(collapse);
     update(root);
@@ -83,7 +86,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // Update the nodes
         var node = svg.selectAll('g.node')
-            .data(nodes, function(d) { return d.id || (d.id = ++i); });
+            .data(nodes, function(d) { return d.id || (d.id = ++lastId); });
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append('g')
@@ -92,25 +95,28 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .on('click', click);
 
         // nodeEnter.append('circle')
-        //     .on('mouseover', hover.bind(null, true))
-        //     .on('mouseout', hover.bind(null, false))
+        //     .on('mouseover', toggleTooltip.bind(null, true))
+        //     .on('mouseout', toggleTooltip.bind(null, false))
         //     .attr('r', 1e-6)
         //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
         // nodeEnter.append('text')
-        //     .attr('x', function(d) { return radiusScale(d.weight); })
+        //     .attr('x', function(d) { return widthScale(d.weight); })
         //     .attr('dy', '.35em')
         //     .attr('text-anchor', function(d) { return 'start'; })
         //     .text(function(d) { return d.name; })
         //     .style('fill-opacity', 1e-6);
         nodeEnter.append('image')
-            .on('mouseover', hover.bind(null, true))
-            .on('mouseout', hover.bind(null, false))
+            .on('mouseover.image', zoomImage.bind(null, true))
+            .on('mouseout.image', zoomImage.bind(null, false))
+            .on('mouseover.tooltip', toggleTooltip.bind(null, true))
+            .on('mouseout.tooltip', toggleTooltip.bind(null, false))
+            .attr('id', function(d) { return 'image_' + d.id; })
             .attr('x', 1e-6)
             .attr('y', 1e-6)
             .attr('height', 1e-6)
             .attr('width', 1e-6)
-            // .style('border-radius', function(d) { return radiusScale(d.weight) / 2; })
+            // .style('border-radius', function(d) { return widthScale(d.weight) / 2; })
             .attr('xlink:href', function(d) {
                 if (d.itemId)
                     return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/item/' + staticItemData.data[d.itemId].image.full);
@@ -124,14 +130,14 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
         // nodeUpdate.select('circle')
-        //     .attr('r', multiScaler.bind(null, true, false))
+        //     .attr('r', multiScaler.bind(null, false))
         //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
         nodeUpdate.select('image')
-            .attr('x', multiScaler.bind(null, true, true))
-            .attr('y', multiScaler.bind(null, true, true))
-            .attr('height', multiScaler.bind(null, false, false))
-            .attr('width', multiScaler.bind(null, false, false));
+            .attr('x', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('y', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('height', function(d) { return Math.max(multiScaler(d), MIN_IMAGE_WIDTH); })
+            .attr('width', function(d) { return Math.max(multiScaler(d), MIN_IMAGE_WIDTH); });
 
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
@@ -139,96 +145,150 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
             .remove();
 
-        // nodeExit.select('circle')
-        //     .attr('r', 1e-6);
         nodeExit.select('image')
             .attr('width', 1e-6)
             .attr('height', 1e-6);
 
-        // nodeExit.select('text')
-        //     .style('fill-opacity', 1e-6);
 
         // Update the links…
-        var link = svg.selectAll('path.link')
+        var linkNode = svg.selectAll('g.linkNode')
             .data(links, function(d) { return d.target.id; });
 
         // Enter any new links at the parent's previous position.
-        link.enter().insert('path', 'g')
-            .on('mouseover', hover.bind(null, true))
-            .on('mouseout', hover.bind(null, false))
+        var linkNodeEnter = linkNode.enter().insert('g', 'g')
+            .attr('class', 'linkNode')
+            .on('mouseover.textZoom', function(d) { return zoomText(true, d, this); })
+            .on('mouseout.textZoom', function(d) { return zoomText(false, d, this); })/*
+            .on('mouseover', toggleTooltip.bind(null, true))
+            .on('mouseout', toggleTooltip.bind(null, false))
+            .on('mouseover.image', zoomImage.bind(null, true))
+            .on('mouseout.image', zoomImage.bind(null, false))*/;
+
+        linkNodeEnter.append('path')
             .attr('class', 'link')
             .attr('d', function(d) {
-                var o = {x: source.x0, y: source.y0};
-                return diagonal({source: o, target: o});
+                var o = { x: source.x0, y: source.y0 };
+                return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', multiScaler.bind(null, false, false));
+            .style('stroke-width', multiScaler)/*
+            .on('click', click)*/;
+
+        linkNodeEnter.append('text')
+            .attr('x', function(d) { return d.source.x0; })
+            .attr('y', function(d) { return d.source.y0; })
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.35em')
+            .attr('fill-opacity', 1e-6)
+            .text(function(d) { return d.target.weight });
 
         // Transition links to their new position.
-        link.transition()
-            .duration(duration)
+        var linkNodeUpdate = linkNode.transition().duration(duration);
+
+        linkNodeUpdate.select('path.link')
             .attr('d', diagonal);
 
+        linkNodeUpdate.select('text')
+            .attr('fill-opacity', 1)
+            .attr('font-size', function(d) { return multiScaler(d) * 0.75; })
+            .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
+            .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
+
+
         // Transition exiting nodes to the parent's new position.
-        link.exit().transition()
-            .duration(duration)
-            .attr('d', function(d) {
-                var o = {x: source.x, y: source.y};
-                return diagonal({source: o, target: o});
-            })
+        var linkNodeExit = linkNode.exit().transition().duration(duration)
             .remove();
+
+        linkNodeExit.select('path.link')
+            .attr('d', function(d) {
+                var o = { x: source.x, y: source.y };
+                return diagonal({ source: o, target: o });
+            });
+
+        linkNodeExit.select('text')
+            // .transition().duration(duration)
+            .attr('fill-opacity', 1e-6);
+            // .attr('x', function(d) { return d.source.x; })
+            // .attr('y', function(d) { return d.source.y; });
+
 
         // Stash the old positions for transition.
         nodes.forEach(function(d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
     }
 
-    function multiScaler(isRadius, inv, d) {
-        var func = isRadius ? radiusScale : strokeScale;
-        var modifier = inv ? -1 : 1;
-        var element = d.target ? d.target : d;
+    function multiScaler(d) {
+        // var func = isStroke ? strokeScale : widthScale;
+        var func = strokeScale;
+        var element = d.target || d;
 
-        return modifier * func(element.weight /
-            (element.parent ?
-                biggestChild(element.parent, reverseSort).weight :
-                maxWeight));
+        // return func(element.weight /
+        //     (element.parent ?
+        //         biggestChild(element.parent, reverseSort).weight :
+        //         maxWeight));
+        return func(element.weight / maxWeight);
     }
 
     // Toggle children on click.
     function click(d) {
-        console.log('click');
-        console.log(d.children);
-        console.log(d._children);
-        if (!d.children && d._children.length === 0) { // Trying to expand _collapsed_ node with no children
-            alert('' + d.name + ' has no further item purchases');
+        var element = d.source || d;
+        if (!element.children && element._children.length === 0) { // Trying to expand _collapsed_ node with no children
+            alert('' + element.name + ' has no further item purchases');
             return;
         }
 
-        if (d.children) {
-            d.weight = d._weight;
-            d._weight = null;
-            d._children = d.children;
-            d.children = null;
+        if (element.children) {
+            element.weight = element._weight;
+            element._weight = null;
+            element._children = element.children;
+            element.children = null;
         }
         else {
-            d._weight = d.weight;
-            d.weight = (d.parent ?
-                biggestChild(d.parent, reverseSort).weight :
+            element._weight = element.weight;
+            element.weight = (element.parent ?
+                biggestChild(element.parent, reverseSort).weight :
                 maxWeight);
-            d.children = d._children;
-            d._children = null;
+            element.children = element._children;
+            element._children = null;
         }
-        console.log(d.children);
-        console.log(d._children);
-        update(d);
+        update(element);
+    }
+
+    // Scale text up on hover
+    function zoomText(hoverIn, d, that) {
+        console.log(that);
+        var text = d3.select(that).select('text').transition().duration(duration / 4);
+        if (hoverIn) {
+            text.attr('font-size', STROKE_MAX * 0.75);
+        }
+        else {
+            text.attr('font-size', multiScaler(d) * 0.75);
+        }
+    }
+
+    // Scale image up on hover
+    function zoomImage(hoverIn, d) {
+        var image = d3.select('#image_' + (d.target || d).id).transition().duration(duration / 4);
+        if (hoverIn) {
+            image.attr('x', -STROKE_MAX / 2)
+                .attr('y', -STROKE_MAX / 2)
+                .attr('width', STROKE_MAX)
+                .attr('height', STROKE_MAX);
+        }
+        else {
+            image.attr('x', -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2)
+                .attr('y', -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2)
+                .attr('width', Math.max(multiScaler(d), MIN_IMAGE_WIDTH))
+                .attr('height', Math.max(multiScaler(d), MIN_IMAGE_WIDTH));
+        }
     }
 
     // Show tooltip on hover
     var tooltip = d3.select('#tooltip');
     var tooltipText = d3.select('#tooltip .mdl-card__title-text');
-    var tooltipValue = d3.select('#tooltip .mdl-card__supporting-text-text');
-    function hover(hoverIn, d) {
+    var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
+    function toggleTooltip(hoverIn, d) {
         if (hoverIn) {
             var value;
             if (d.source) {
@@ -243,8 +303,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             tooltipValue.text('x' + value);
 
             tooltip.classed('visible', true)
-                .style('left', (d3.event.pageX) + 'px')
-                .style('top', (d3.event.pageY + 15) + 'px');
+                .style('left', (d3.event.pageX - 165) + 'px')
+                .style('top', (d3.event.pageY + 40) + 'px');
         }
         else {
             tooltip.classed('visible', false);
@@ -253,5 +313,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     }
 }
 
-plot(dataBefore, itemBefore, champBefore, '#before-container', true);
-plot(dataAfter, itemAfter, champBefore, '#after-container', false);
+if (!(dataBefore && dataAfter)) {
+    alert('There doesn\'t seem to be enough data for this champion.');
+}
+else {
+    plot(dataBefore, itemBefore, champBefore, '#before-container', true);
+    plot(dataAfter, itemAfter, champBefore, '#after-container', false);
+}
