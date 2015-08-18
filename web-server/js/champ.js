@@ -24,7 +24,7 @@ function biggestChild(element, reverseSort) {
 function plot(jsonData, staticItemData, staticChampData, containerSelector, reverseSort) {
     var margin = {top: 20, right: 20, bottom: 20, left: 20},
       width = d3.select(containerSelector).node().getBoundingClientRect().width - margin.right - margin.left,
-      height = (LAYER_SPACING * 6) - margin.top - margin.bottom;
+      height = (LAYER_SPACING * 7) - margin.top - margin.bottom;
 
     var i = 0,
       duration = 750,
