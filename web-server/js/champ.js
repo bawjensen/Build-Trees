@@ -95,8 +95,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .on('click', click);
 
         // nodeEnter.append('circle')
-        //     .on('mouseover', hover.bind(null, true))
-        //     .on('mouseout', hover.bind(null, false))
+        //     .on('mouseover', toggleTooltip.bind(null, true))
+        //     .on('mouseout', toggleTooltip.bind(null, false))
         //     .attr('r', 1e-6)
         //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
 
@@ -107,8 +107,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     .text(function(d) { return d.name; })
         //     .style('fill-opacity', 1e-6);
         nodeEnter.append('image')
-            .on('mouseover', function(d) { return hover(true, d, this); })
-            .on('mouseout', function(d) { return hover(false, d, this); })
+            .on('mouseover.image', function(d) { return zoomImage(true, d, this); })
+            .on('mouseout.image', function(d) { return zoomImage(false, d, this); })
+            .on('mouseover.tooltip', toggleTooltip.bind(null, true))
+            .on('mouseout.tooltip', toggleTooltip.bind(null, false))
+            .attr('id', function(d) { return 'image_' + d.id; })
             .attr('x', 1e-6)
             .attr('y', 1e-6)
             .attr('height', 1e-6)
@@ -153,9 +156,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // Enter any new links at the parent's previous position.
         var linkNodeEnter = linkNode.enter().insert('g', 'g')
-            // .on('mouseover', hover.bind(null, true))
-            // .on('mouseout', hover.bind(null, false))
-            .attr('class', 'linkNode');
+            // .on('mouseover', toggleTooltip.bind(null, true))
+            // .on('mouseout', toggleTooltip.bind(null, false))
+            .attr('class', 'linkNode')
+            .on('mouseover.image', function(d) { return zoomImage(true, d, this); })
+            .on('mouseout.image', function(d) { return zoomImage(false, d, this); });
 
         linkNodeEnter.append('path')
             .attr('class', 'link')
@@ -171,6 +176,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('y', function(d) { return d.source.y0; })
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
+            .attr('fill-opacity', 1e-6)
             .text(function(d) { return d.target.weight });
 
         // Transition links to their new position.
@@ -180,6 +186,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('d', diagonal);
 
         linkNodeUpdate.select('text')
+            .attr('fill-opacity', 1)
             .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
             .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
 
@@ -195,15 +202,17 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             });
 
         linkNodeExit.select('text')
-            .attr('x', function(d) { return d.source.x; })
-            .attr('y', function(d) { return d.source.y; });
+            // .transition().duration(duration)
+            .attr('fill-opacity', 1e-6);
+            // .attr('x', function(d) { return d.source.x; })
+            // .attr('y', function(d) { return d.source.y; });
 
 
         // Stash the old positions for transition.
         nodes.forEach(function(d) {
-                d.x0 = d.x;
-                d.y0 = d.y;
-            });
+            d.x0 = d.x;
+            d.y0 = d.y;
+        });
     }
 
     function multiScaler(isStroke, d) {
@@ -242,27 +251,27 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         update(element);
     }
 
+    function zoomImage(hoverIn, d, that) {
+        var image = d3.select('#image_' + (d.target || d).id).transition().duration(duration / 4);
+        if (hoverIn) {
+            image.attr('x', -STROKE_MAX / 2);
+            image.attr('y', -STROKE_MAX / 2);
+            image.attr('width', STROKE_MAX);
+            image.attr('height', STROKE_MAX);
+        }
+        else {
+            image.attr('x', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
+            image.attr('y', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
+            image.attr('width', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
+            image.attr('height', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
+        }
+    }
+
     // Show tooltip on hover
     var tooltip = d3.select('#tooltip');
     var tooltipText = d3.select('#tooltip .mdl-card__title-text');
     var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
-    function hover(hoverIn, d, that) {
-        if (that) {
-            var image = d3.select(that).transition().duration(duration / 4);
-            if (hoverIn) {
-                image.attr('x', -STROKE_MAX / 2);
-                image.attr('y', -STROKE_MAX / 2);
-                image.attr('width', STROKE_MAX);
-                image.attr('height', STROKE_MAX);
-            }
-            else {
-                image.attr('x', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
-                image.attr('y', -1 * Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH) / 2);
-                image.attr('width', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
-                image.attr('height', Math.max(multiScaler(true, d), MIN_IMAGE_WIDTH));
-            }
-        }
-
+    function toggleTooltip(hoverIn, d) {
         if (hoverIn) {
             var value;
             if (d.source) {
