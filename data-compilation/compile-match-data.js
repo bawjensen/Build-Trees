@@ -27,6 +27,11 @@ var matchQuery      = '?' + querystring.stringify(matchOptions);
 
 // --------------------------------------- Helper Functions -------------------------------------
 
+function logErrorAndRethrow(err) {
+    console.error(err.stack);
+    throw err;
+}
+
 // --------------------------------------- Main Functions ---------------------------------------
 
 function fetchAndStore() {
@@ -36,64 +41,83 @@ function fetchAndStore() {
     var desiredFrameData = new Set([ 'events' ]);
     var desiredParticipantData = new Set([ 'championId', 'participantId' ]);
 
-    var allDesiredData = [
+    var allRegions = [
+        { filePrefix: 'BR', regionStr: 'br' },
+        { filePrefix: 'EUNE', regionStr: 'eune' },
+        { filePrefix: 'EUW', regionStr: 'euw' },
+        { filePrefix: 'KR', regionStr: 'kr' },
+        { filePrefix: 'LAN', regionStr: 'lan' },
+        { filePrefix: 'LAS', regionStr: 'las' },
         { filePrefix: 'NA', regionStr: 'na' },
-        { filePrefix: 'LAN', regionStr: 'lan' }
+        { filePrefix: 'OCE', regionStr: 'oce' },
+        { filePrefix: 'RU', regionStr: 'ru' },
+        { filePrefix: 'TR', regionStr: 'tr' }
     ];
 
-    return promises.openDB('mongodb://localhost:27017/lol-data')
-        .then(function(newDB) { db = newDB; })
-        .then(function() {
-            return Promise.all(
-                allDesiredData.map(function(regionObj) {
+    return Promise.all(
+        allRegions.map(function(regionObj) {
+            return promises.read('json-data/matches/' + (MODE === 'After' ? '5.14' : '5.11') + '/RANKED_SOLO/' + regionObj.filePrefix + '.json')
+                .then(JSON.parse)
+                .catch(function(err) {
+                    console.log(regionObj);
+                    throw err;
+                })
+                .then(function(matches) {
                     let regionEndpoint = endpointPrefix + regionObj.regionStr + apiUrl + regionObj.regionStr + matchEndpoint;
-                    return promises.read('json-data/matches/' + (MODE === 'After' ? '5.14' : '5.11') + '/RANKED_SOLO/' + regionObj.filePrefix + '.json')
-                        .then(JSON.parse)
-                        .then(function fetchEverything(matches) {
-                            return promises.rateLimitedGet(matches.slice(0, MATCH_LIMIT), RATE_LIMIT,
-                                function(matchId) {
-                                    return promises.persistentGet(regionEndpoint + matchId + matchQuery);
-                                },
-                                function(matchData) {
-                                    matchData.timeline.frames = matchData.timeline.frames.filter(function(frame) {
-                                        if (!frame.events) return false;
+                    return matches.slice(0, MATCH_LIMIT).map(function(matchId) { return regionEndpoint + matchId + matchQuery });
+                });
+        }))
+        .then(function(regionUrlMatrix) {
+            let flattened = [];
+            return flattened.concat.apply(flattened, regionUrlMatrix);
+        })
+        .then(function(apiUrls) {
+            return promises.openDB('mongodb://localhost:27017/lol-data')
+                .then(function(newDB) { db = newDB; })
+                .then(function() {
+                    return promises.rateLimitedGet(apiUrls, RATE_LIMIT,
+                        function(apiUrl) {
+                            return promises.persistentGet(apiUrl);
+                        },
+                        function(matchData) {
+                            matchData.timeline.frames = matchData.timeline.frames.filter(function(frame) {
+                                if (!frame.events) return false;
 
-                                        for (var key in frame) {
-                                            if (!desiredFrameData.has(key))
-                                                delete frame[key];
-                                        }
+                                for (var key in frame) {
+                                    if (!desiredFrameData.has(key))
+                                        delete frame[key];
+                                }
 
-                                        frame.events = frame.events.filter(function(evt) {
-                                            return evt.eventType === 'ITEM_PURCHASED' || evt.eventType === 'ITEM_UNDO';
-                                        });
-                                        return frame.events.length !== 0;
-                                    });
-                                    for (var key in matchData.timeline) {
-                                        if (!desiredTimelineData.has(key))
-                                            delete matchData.timeline[key];
-                                    }
-
-                                    matchData.participants.forEach(function(participant) {
-                                        if (participant.championId === '126') console.log('yay!');
-                                        for (var key in participant) {
-                                            if (!desiredParticipantData.has(key))
-                                                delete participant[key];
-                                        }
-                                    });
-
-                                    for (var key in matchData) {
-                                        if (!desiredData.has(key)) {
-                                            delete matchData[key];
-                                        }
-                                    }
-
-                                    db.collection('matches' + MODE).insert(matchData);
+                                frame.events = frame.events.filter(function(evt) {
+                                    return evt.eventType === 'ITEM_PURCHASED' || evt.eventType === 'ITEM_UNDO';
                                 });
+                                return frame.events.length !== 0;
+                            });
+                            for (var key in matchData.timeline) {
+                                if (!desiredTimelineData.has(key))
+                                    delete matchData.timeline[key];
+                            }
+
+                            matchData.participants.forEach(function(participant) {
+                                if (participant.championId === '126') console.log('yay!');
+                                for (var key in participant) {
+                                    if (!desiredParticipantData.has(key))
+                                        delete participant[key];
+                                }
+                            });
+
+                            for (var key in matchData) {
+                                if (!desiredData.has(key)) {
+                                    delete matchData[key];
+                                }
+                            }
+
+                            db.collection('matches' + MODE).insert(matchData);
                         });
-                }))
-                .catch(console.error)
-                .then(function() { db.close(); });
-        });
+                });
+        })
+        .catch(logErrorAndRethrow)
+        .then(function() { db.close(); });
 }
 
 fetchAndStore();
