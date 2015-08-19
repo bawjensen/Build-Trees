@@ -61,7 +61,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     }
 
     var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.weight ? largestValue : elem.weight; }, 0);
-    var strokeScale = d3.scale.linear()
+    var widthScale = d3.scale.linear()
         .domain([0, 1])
         .range([STROKE_MIN, STROKE_MAX])
         .clamp(true);
@@ -157,7 +157,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 var o = { x: source.x0, y: source.y0 };
                 return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', multiScaler);
+            .style('stroke-width', function(d) { return widthScale(d.target.weight / maxWeight); });
 
         // Enter any new text at the parent's previous position.
         linkNodeEnter.append('text')
@@ -211,7 +211,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
     // Multi-purpose scaling function, for paths and such
     function multiScaler(d, isText) {
-        var func = isText ? textLabelScale : strokeScale;
+        var func = isText ? textLabelScale : widthScale;
         var element = d.target || d;
 
         return func((element.scaleSize || element.weight) / maxWeight);
