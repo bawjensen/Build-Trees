@@ -50,7 +50,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     root = jsonData;
     root.x0 = width / 2;
     root.y0 = 0;
-    root._weight = root.weight;
+    // root.scaleSize = root.weight;
 
     function collapse(d) {
       if (d.children) {
@@ -233,7 +233,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         //     (element.parent ?
         //         biggestChild(element.parent, reverseSort).weight :
         //         maxWeight));
-        return func(element.weight / maxWeight);
+        return func((element.scaleSize || element.weight) / maxWeight);
     }
 
     // Toggle children on click.
@@ -245,16 +245,15 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         }
 
         if (element.children) {
-            element.weight = element._weight;
-            element._weight = null;
+            element.scaleSize = null;
             element._children = element.children;
             element.children = null;
         }
         else {
-            element._weight = element.weight;
-            element.weight = (element.parent ?
-                biggestChild(element.parent, reverseSort).weight :
-                maxWeight);
+            // element.weight = (element.parent ?
+            //     biggestChild(element.parent, reverseSort).weight :
+            //     maxWeight);
+            element.scaleSize = biggestChild(element.parent, reverseSort).weight;
             element.children = element._children;
             element._children = null;
         }
@@ -298,11 +297,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         if (hoverIn) {
             var value;
             // if (d.source) {
-            //     value = d.target._weight ? d.target._weight : d.target.weight;
+            //     value = d.target.scaleSize ? d.target.scaleSize : d.target.weight;
             //     tooltipText.text(d.source.name + ' -> ' + d.target.name);
             // }
             // else {
-                value = d._weight ? d._weight : d.weight;
+                value = d.scaleSize || d.weight;
                 tooltipText.text(d.name);
             // }
 
