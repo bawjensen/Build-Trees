@@ -253,7 +253,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             // element.weight = (element.parent ?
             //     biggestChild(element.parent, reverseSort).weight :
             //     maxWeight);
-            element.scaleSize = biggestChild(element.parent, reverseSort).weight;
+            // element.scaleSize = biggestChild(element.parent, reverseSort).weight;
+            element.scaleSize = maxWeight;
             element.children = element._children;
             element._children = null;
         }
@@ -301,7 +302,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             //     tooltipText.text(d.source.name + ' -> ' + d.target.name);
             // }
             // else {
-                value = d.scaleSize || d.weight;
+                value = d.weight;
                 tooltipText.text(d.name);
             // }
 
