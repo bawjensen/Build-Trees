@@ -110,7 +110,7 @@ function fetchAndStore() {
 
                 jsonCompatibleTrie.champStrKey = champNameConverter[''+championId].strKey;
 
-                fs.writeFile('web-server/data/' + champName + MODE + '.json', JSON.stringify(jsonCompatibleTrie), function(err) { if (err) console.log(err); });
+                fs.writeFile('web-server/data/' + champName.toLowerCase() + MODE + '.json', JSON.stringify(jsonCompatibleTrie), function(err) { if (err) console.log(err); });
             }
         })
         .catch(function(err) {

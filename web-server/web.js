@@ -66,6 +66,7 @@ mainRouter.route('/')
 
 mainRouter.route('/:champName')
     .get(function(req, res) {
+        req.params.champName = req.params.champName.toLowerCase();
         promises.readMultipleFiles([
                 ['data/itemBefore.json',    'itemBefore'],
                 ['data/itemAfter.json',     'itemAfter'],
