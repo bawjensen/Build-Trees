@@ -83,14 +83,7 @@ function fetchAndStore() {
                             let build = allBuilds[participant.participantId];
 
                             if (build) {
-                                // if (build.length > 6) console.log(build.map(function(itemId) { return staticItemData[itemId].name; }));
-                                // if (build.length > 5) {
-                                //     build = build.slice(0,5)
-                                // }
-                                // if (participant.championId === 429) {
-                                //     console.log('\nInserting:', build.map(function(itemId) { return staticItemData[itemId].name; }));
-                                // }
-                                champItemBuilds[participant.championId].insert(build);
+                                champItemBuilds[participant.championId].insert(build.slice(0, 6));
                             }
                         });
                     });

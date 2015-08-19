@@ -220,18 +220,22 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     // Toggle children on click.
     function click(d) {
         var element = d.source || d;
-        if (!element.children && element._children.length === 0) { // Trying to expand _collapsed_ node with no children
-            alert('' + element.name + ' has no further item purchases');
-            return;
-        }
+        var collapsingNode = !!element.children;
 
-        if (element.children) { // Toggling off
-            element.scaleSize = null;
+        element.scaleSize =
+            (collapsingNode ?
+                null :
+                ( (element.scaleSize === maxWeight) ?
+                    null :
+                    maxWeight ));
+
+        if (!collapsingNode && element._children.length === 0) return; // Trying to expand a *collapsed* node with no children
+
+        if (collapsingNode) { // Toggling off
             element._children = element.children;
             element.children = null;
         }
         else { // Toggling on
-            element.scaleSize = maxWeight;
             element.children = element._children;
             element._children = null;
         }
