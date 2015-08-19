@@ -291,6 +291,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
     // Show tooltip on hover
     var tooltip = d3.select('#tooltip');
+    tooltip.on('click', function() { console.log('two'); if (tooltip.classed('visible')) tooltip.classed('visible', false); }); // Hide the tooltip on click
     var tooltipText = d3.select('#tooltip .mdl-card__title-text');
     var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
     function toggleTooltip(hoverIn, d) {
