@@ -57,7 +57,6 @@ function fetchAndStore() {
     return Promise.all(
         allRegions.map(function(regionObj) {
             return promises.read('json-data/matches/' + (MODE === 'After' ? '5.14' : '5.11') + '/RANKED_SOLO/' + regionObj.filePrefix + '.json')
-                .then(JSON.parse)
                 .catch(function(err) {
                     console.log(regionObj);
                     throw err;
