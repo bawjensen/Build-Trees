@@ -72,11 +72,9 @@ app.route('/')
 
 app.route('/:champName')
     .get(function(req, res) {
+        req.params.champName = req.params.champName.toLowerCase();
         Promise.resolve()
             .then(function() {
-                console.log('req.params.champName:', req.params.champName);
-                req.params.champName = req.params.champName.toLowerCase();
-                console.log('req.params.champName:', req.params.champName);
                 if (!res.locals.champNameList[req.params.champName]) {
                     let err = new Error('Champ name url was invalid');
                     err.code = 'INVALID_CHAMP';
