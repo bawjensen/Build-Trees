@@ -99,18 +99,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('transform', function(d) { return 'translate(' + source.x0 + ',' + source.y0 + ')'; })
             .on('click', click);
 
-        // nodeEnter.append('circle')
-        //     .on('mouseover', toggleTooltip.bind(null, true))
-        //     .on('mouseout', toggleTooltip.bind(null, false))
-        //     .attr('r', 1e-6)
-        //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
-
-        // nodeEnter.append('text')
-        //     .attr('x', function(d) { return widthScale(d.weight); })
-        //     .attr('dy', '.35em')
-        //     .attr('text-anchor', function(d) { return 'start'; })
-        //     .text(function(d) { return d.name; })
-        //     .style('fill-opacity', 1e-6);
+        // When a new node enters, append an image
         nodeEnter.append('image')
             .on('mouseover.image', zoomImage.bind(null, true))
             .on('mouseout.image', zoomImage.bind(null, false))
@@ -134,10 +123,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .duration(duration)
             .attr('transform', function(d) { return 'translate(' + d.x + ',' + d.y + ')'; });
 
-        // nodeUpdate.select('circle')
-        //     .attr('r', multiScaler.bind(null, false))
-        //     .style('fill', function(d) { return d._children ? COLLAPSED_COLOR : EXPANDED_COLOR; });
-
+        // When a node is triggered for an update, update the image
         nodeUpdate.select('image')
             .attr('x', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
             .attr('y', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
@@ -150,34 +136,30 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('transform', function(d) { return 'translate(' + source.x + ',' + source.y + ')'; })
             .remove();
 
+        // When nodes are exiting, shrink their images
         nodeExit.select('image')
             .attr('width', 1e-6)
             .attr('height', 1e-6);
 
 
-        // Update the links…
+        // Update the link nodes
         var linkNode = svg.selectAll('g.linkNode')
             .data(links, function(d) { return d.target.id; });
 
-        // Enter any new links at the parent's previous position.
+        // When a new link node enters, insert a 'g' element before all other 'g' elements, so it's drawn first (and behind)
         var linkNodeEnter = linkNode.enter().insert('g', 'g')
-            .attr('class', 'linkNode')/*
-            .on('mouseover.textZoom', function(d) { return zoomText(true, d, this); })
-            .on('mouseout.textZoom', function(d) { return zoomText(false, d, this); })
-            .on('mouseover', toggleTooltip.bind(null, true))
-            .on('mouseout', toggleTooltip.bind(null, false))
-            .on('mouseover.image', zoomImage.bind(null, true))
-            .on('mouseout.image', zoomImage.bind(null, false))*/;
+            .attr('class', 'linkNode');
 
+        // Enter any new links (paths) at the parent's previous position.
         linkNodeEnter.append('path')
             .attr('class', 'link')
             .attr('d', function(d) {
                 var o = { x: source.x0, y: source.y0 };
                 return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', multiScaler)/*
-            .on('click', click)*/;
+            .style('stroke-width', multiScaler);
 
+        // Enter any new text at the parent's previous position.
         linkNodeEnter.append('text')
             .attr('x', function(d) { return d.source.x0; })
             .attr('y', function(d) { return d.source.y0; })
@@ -187,12 +169,14 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('font-size', function(d) { return multiScaler(d, true); })
             .text(function(d) { return Math.round(100 * (d.target.weight / d.target.parent.weight)) + '%'; });
 
-        // Transition links to their new position.
+        // Upon an update, perform with a transition delay (animation, etc.)
         var linkNodeUpdate = linkNode.transition().duration(duration);
 
+        // Transition links to their new position.
         linkNodeUpdate.select('path.link')
             .attr('d', diagonal);
 
+        // Transition text to their new position.
         linkNodeUpdate.select('text')
             .attr('fill-opacity', 1)
             .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
@@ -203,36 +187,33 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         var linkNodeExit = linkNode.exit().transition().duration(duration)
             .remove();
 
-        // Changes without delay
-        linkNode.exit().select('text').attr('fill-opacity', 1e-6);
-
+        // Exiting link nodes bring their paths with, transitioning their position
         linkNodeExit.select('path.link')
             .attr('d', function(d) {
                 var o = { x: source.x, y: source.y };
                 return diagonal({ source: o, target: o });
             });
 
+        // Exiting link nodes kill their text, fading it out
         linkNodeExit.select('text')
             .attr('fill-opacity', 1e-6);
-            // .attr('x', function(d) { return d.source.x; })
-            // .attr('y', function(d) { return d.source.y; });
+
+        // Changes without delay
+        linkNode.exit().select('text').attr('fill-opacity', 1e-6);
 
 
-        // Stash the old positions for transition.
+        // Stash the old positions for future transitions.
         nodes.forEach(function(d) {
             d.x0 = d.x;
             d.y0 = d.y;
         });
     }
 
+    // Multi-purpose scaling function, for paths and such
     function multiScaler(d, isText) {
         var func = isText ? textLabelScale : strokeScale;
         var element = d.target || d;
 
-        // return func(element.weight /
-        //     (element.parent ?
-        //         biggestChild(element.parent, reverseSort).weight :
-        //         maxWeight));
         return func((element.scaleSize || element.weight) / maxWeight);
     }
 
@@ -244,33 +225,18 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             return;
         }
 
-        if (element.children) {
+        if (element.children) { // Toggling off
             element.scaleSize = null;
             element._children = element.children;
             element.children = null;
         }
-        else {
-            // element.weight = (element.parent ?
-            //     biggestChild(element.parent, reverseSort).weight :
-            //     maxWeight);
-            // element.scaleSize = biggestChild(element.parent, reverseSort).weight;
+        else { // Toggling on
             element.scaleSize = maxWeight;
             element.children = element._children;
             element._children = null;
         }
         update(element);
     }
-
-    // // Scale text up on hover
-    // function zoomText(hoverIn, d, that) {
-    //     var text = d3.select(that).transition().duration(duration).select('text');
-    //     if (hoverIn) {
-    //         text.attr('font-size', STROKE_MAX * TEXT_RELATIVE_SCALE);
-    //     }
-    //     else {
-    //         text.attr('font-size', multiScaler(d, true));
-    //     }
-    // }
 
     // Scale image up on hover
     function zoomImage(hoverIn, d) {
@@ -296,16 +262,9 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
     function toggleTooltip(hoverIn, d) {
         if (hoverIn) {
-            var value;
-            // if (d.source) {
-            //     value = d.target.scaleSize ? d.target.scaleSize : d.target.weight;
-            //     tooltipText.text(d.source.name + ' -> ' + d.target.name);
-            // }
-            // else {
-                value = d.weight;
-                tooltipText.text(d.name);
-            // }
+            var value = d.weight;
 
+            tooltipText.text(d.name);
             tooltipValue.text('x' + value);
 
             tooltip.classed('visible', true)
@@ -314,7 +273,6 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         }
         else {
             tooltip.classed('visible', false);
-            // tooltip.attr('class', null);
         }
     }
 }
