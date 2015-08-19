@@ -6,7 +6,15 @@ $(function() {
                 window.location.href = champName;
             }
             else {
-                alert('"' + champName + '" wasn\'t a valid champion name search');
+                var regexMatch = new RegExp('^' + champName, 'i');
+                var possibilities = $('datalist#champions option').filter(function() { return this.value.match(regexMatch); });
+                if (possibilities.length) {
+                    $(possibilities[9]).click();
+                    window.location.href = possibilities[0].value;
+                }
+                else {
+                    alert('"' + champName + '" wasn\'t a valid champion name search');
+                }
             }
         }
     });
