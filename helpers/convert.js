@@ -25,18 +25,17 @@ function createNameConverter() {
 // Note: This function ignores MODE, always uses 'Before' list
 function createNameList() {
     promises.read('json-data/championBefore.json')
-        .then(JSON.parse)
         .then(function(data) {
             data = data.data;
             var newData = {};
 
             for (var strKey in data) {
-                newData[data[strKey].name] = 1;
+                newData[data[strKey].name.toLowerCase()] = 1;
             }
 
             fs.writeFile('json-data/champNameList.json', JSON.stringify(newData));
         })
-        .catch(function(err) { console.error(err.stack); throw err; });
+        .catch(function(err) { console.error('Err:', err.stack); throw err; });
 }
 
 createNameConverter();
