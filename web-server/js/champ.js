@@ -7,7 +7,7 @@ var EXPANDED_COLOR = 'lightsteelblue',
     STROKE_MAX = 40,
     LAYER_SPACING = 100,
     MIN_IMAGE_WIDTH = 12,
-    TEXT_RELATIVE_SCALE = 0.625,
+    TEXT_RELATIVE_SCALE = 0.5,
     lastId = 0;
 
 function sortNorm(a, b) {
@@ -42,10 +42,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
       .projection(function(d) { return [d.x, d.y]; });
 
     var svg = d3.select(containerSelector).append('svg')
-      .attr('width', width + margin.right + margin.left)
-      .attr('height', height + margin.top + margin.bottom)
-    .append('g')
-      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        .attr('width', width + margin.right + margin.left)
+        .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+        .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     root = jsonData;
     root.x0 = width / 2;
@@ -67,7 +67,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .clamp(true);
     var textLabelScale = d3.scale.linear()
         .domain([0, 1])
-        .range([STROKE_MIN, STROKE_MAX * TEXT_RELATIVE_SCALE])
+        .range([STROKE_MIN * 1/TEXT_RELATIVE_SCALE, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
     // var widthScale = d3.scale.linear()
     //     .domain([0, 1])
@@ -185,7 +185,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('dy', '.35em')
             .attr('fill-opacity', 1e-6)
             .attr('font-size', function(d) { return multiScaler(d, true); })
-            .text(function(d) { return d.target.weight; });
+            .text(function(d) { return Math.round(100 * (d.target.weight / d.target.parent.weight)) + '%'; });
 
         // Transition links to their new position.
         var linkNodeUpdate = linkNode.transition().duration(duration);
