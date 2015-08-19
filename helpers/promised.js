@@ -40,6 +40,7 @@ function read(filepath) {
 // Note, doesn't error on file missing, rather returns null
 function readMultipleFiles(iterable) {
     var filesObj = {};
+    console.log(iterable);
     return Promise.all(
             iterable.map(function(tuple) {
                 return read(tuple[0]).catch(function(err) { return null; }).then(function(jsonData) { filesObj[tuple[1]] = jsonData; });
