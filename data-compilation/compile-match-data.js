@@ -39,12 +39,12 @@ function fetchAndStore() {
     var desiredData = new Set([ 'timeline', 'participants' ]);
     var desiredTimelineData = new Set([ 'frames' ]);
     var desiredFrameData = new Set([ 'events' ]);
-    var desiredParticipantData = new Set([ 'championId', 'participantId' ]);
+    var desiredParticipantData = new Set([ 'championId', 'participantId', 'winner' ]);
 
     var matchTypes = [
         'RANKED_SOLO',
         'NORMAL_5X5'
-    ]
+    ];
 
     var allRegions = [
         { filePrefix: 'BR', regionStr: 'br' },
@@ -89,6 +89,19 @@ function fetchAndStore() {
                             return promises.persistentGet(apiUrl);
                         },
                         function(matchData) {
+                            let isWinningTeam = {};
+                            matchData.teams.forEach(function(team) {
+                                isWinningTeam[team.teamId] = team.winner;
+                            });
+
+                            matchData.participants.forEach(function(participant) {
+                                participant.winner = isWinningTeam[participant.teamId];
+                                for (var key in participant) {
+                                    if (!desiredParticipantData.has(key))
+                                        delete participant[key];
+                                }
+                            });
+
                             matchData.timeline.frames = matchData.timeline.frames.filter(function(frame) {
                                 if (!frame.events) return false;
 
@@ -106,13 +119,6 @@ function fetchAndStore() {
                                 if (!desiredTimelineData.has(key))
                                     delete matchData.timeline[key];
                             }
-
-                            matchData.participants.forEach(function(participant) {
-                                for (var key in participant) {
-                                    if (!desiredParticipantData.has(key))
-                                        delete participant[key];
-                                }
-                            });
 
                             for (var key in matchData) {
                                 if (!desiredData.has(key)) {
