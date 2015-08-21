@@ -6,10 +6,10 @@ var promises    = require('../helpers/promised.js'),
 var API_KEY             = process.env.RIOT_CHALLENGE_KEY;
 var DEFAULT_RATE_LIMIT  = 1000;
 var RATE_LIMIT          = DEFAULT_RATE_LIMIT;
-var MATCH_LIMIT         = process.argv[2] ? parseInt(process.argv[2]) : 10000;
+var MATCH_LIMIT         = process.argv[3] ? parseInt(process.argv[3]) : 10000;
 
-var MODE = process.argv[3] ?
-                (process.argv[3] === 'a' ? 'After' : 'Before') :
+var MODE = process.argv[2] ?
+                (process.argv[2] === 'a' ? 'After' : 'Before') :
                 'After';
 
 console.log('In mode:', MODE);
@@ -41,6 +41,11 @@ function fetchAndStore() {
     var desiredFrameData = new Set([ 'events' ]);
     var desiredParticipantData = new Set([ 'championId', 'participantId' ]);
 
+    var matchTypes = [
+        'RANKED_SOLO',
+        'NORMAL_5X5'
+    ]
+
     var allRegions = [
         { filePrefix: 'BR', regionStr: 'br' },
         { filePrefix: 'EUNE', regionStr: 'eune' },
@@ -54,27 +59,32 @@ function fetchAndStore() {
         { filePrefix: 'TR', regionStr: 'tr' }
     ];
 
+    var allRegionUrls = [];
     return Promise.all(
-        allRegions.map(function(regionObj) {
-            return promises.read('json-data/matches/' + (MODE === 'After' ? '5.14' : '5.11') + '/RANKED_SOLO/' + regionObj.filePrefix + '.json')
-                .catch(function(err) {
-                    console.log(regionObj);
-                    throw err;
-                })
-                .then(function(matches) {
-                    let regionEndpoint = endpointPrefix + regionObj.regionStr + apiUrl + regionObj.regionStr + matchEndpoint;
-                    return matches.slice(0, MATCH_LIMIT).map(function(matchId) { return regionEndpoint + matchId + matchQuery });
-                });
-        }))
-        .then(function(regionUrlMatrix) {
-            let flattened = [];
-            return flattened.concat.apply(flattened, regionUrlMatrix);
-        })
-        .then(function(apiUrls) {
+        matchTypes.map(function(matchType) {
+            return Promise.all(
+                allRegions.map(function(regionObj) {
+                    return promises.read('json-data/matches/' + (MODE === 'After' ? '5.14' : '5.11') + '/' + matchType + '/' + regionObj.filePrefix + '.json')
+                        .catch(function(err) {
+                            console.log(regionObj);
+                            throw err;
+                        })
+                        .then(function(matches) {
+                            let regionEndpoint = endpointPrefix + regionObj.regionStr + apiUrl + regionObj.regionStr + matchEndpoint;
+                            return matches.slice(0, MATCH_LIMIT).map(function(matchId) { return regionEndpoint + matchId + matchQuery });
+                        })
+                        .then(function(regionUrls) {
+                            return Array.prototype.push.apply(allRegionUrls, regionUrls); // Extends one array with the other
+                        });
+                    })
+                );
+            })
+        )
+        .then(function() {
             return promises.openDB('mongodb://localhost:27017/lol-data')
                 .then(function(newDB) { db = newDB; })
                 .then(function() {
-                    return promises.rateLimitedGet(apiUrls, RATE_LIMIT,
+                    return promises.rateLimitedGet(allRegionUrls, RATE_LIMIT,
                         function(apiUrl) {
                             return promises.persistentGet(apiUrl);
                         },
@@ -118,4 +128,11 @@ function fetchAndStore() {
         .then(function() { db.close(); });
 }
 
-fetchAndStore();
+var start = (new Date).getTime();
+fetchAndStore()
+    .then(function() {
+        var end = (new Date).getTime();
+        var minutes = (end - start) / 60000;
+        console.log('Took', minutes, 'minutes');
+        db.close();
+    });
