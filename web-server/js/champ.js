@@ -70,11 +70,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .range([STROKE_MIN * 1/TEXT_RELATIVE_SCALE, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
     var pathOpacityScale = d3.scale.linear()
-        .domain([0, 1])
+        .domain([0.4, 0.6])
         .range([0.2, 0.75])
         .clamp(true);
     var imageTextOpacityScale = d3.scale.linear()
-        .domain([0, 1])
+        .domain([0.45, 0.55])
         .range([0.2, 1.0])
         .clamp(true);
     // var imageSizeScale = d3.scale.linear()
@@ -290,7 +290,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             var value = d.count;
 
             tooltipText.text(d.name);
-            tooltipValue.text('x' + value + '(' + (d.winRate * 100) + '%)');
+            tooltipValue.text('x' + value + '(' + (d.winRate * 100).toFixed(2) + '%)');
 
             tooltip.classed('visible', true)
                 .style('left', (d3.event.pageX - 165) + 'px')
