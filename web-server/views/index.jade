@@ -8,12 +8,13 @@ block body-content
 
     for champObj in champBefore.data
       - var champLink = '/' + champObj.name.toLowerCase();
-      .champDiv.mdl-cell.mdl-cell--1-col.mdl-card.mdl-shadow--4dp.mdl-card--border
-        .mdl-card__media
-          a(href=champLink)
-            img(src='http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + champObj.image.full)
-        .mdl-card__actions.mdl-card--border
-          a(href=champLink).mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect
-            = champObj.name
+      .champDiv.mdl-cell.mdl-cell--1-col
+        .mdl-card.mdl-shadow--4dp.mdl-card--border
+          .mdl-card__media
+            a(href=champLink)
+              img(src='http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + champObj.image.full)
+          .mdl-card__actions.mdl-card--border
+            a(href=champLink).mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect
+              = champObj.name
 
-          //- = champObj.name
+            //- = champObj.name

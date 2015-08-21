@@ -38,17 +38,23 @@ footer {
 .champDiv {
   text-align: center;
   white-space: nowrap;
-  min-height: 0;
+  padding: 5px;
 
   img {
     width: 100%;
     height: auto;
   }
 
-  .mdl-card__actions {
-    .mdl-button {
-      width: 100%;
-      padding: 0;
+  .mdl-card {
+    width: 100%;
+    min-height: 0;
+
+    .mdl-card__actions {
+      .mdl-button {
+        width: 100%;
+        padding: 0;
+        text-overflow: ellipsis;
+      }
     }
   }
 }
