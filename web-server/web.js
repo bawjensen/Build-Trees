@@ -49,37 +49,54 @@ app.use(logfmt.requestLogger());
 
 // ================================= Routing functions ================================
 
-var mainRouter = express.Router();
-
-mainRouter.route('/')
-    .get(function(req, res) {
+app.route('*')
+    .all(function(req, res, next) {
         promises.readMultipleFiles([
-                ['data/champBefore.json', 'champBefore']
+                ['data/champBefore.json', 'champBefore'],
+                ['data/champAfter.json', 'champAfter'],
+                ['data/champNameList.json', 'champNameList']
             ])
             .then(function(filesObj) {
-                res.render('index.jade',  {
-                    champBefore: filesObj['champBefore']
-                });
+                res.locals.champBefore = filesObj.champBefore;
+                res.locals.champAfter = filesObj.champAfter;
+                res.locals.champNameList = filesObj.champNameList;
+                next();
             })
             .catch(function(err) { console.log(err.stack); res.sendStatus(500); });
     });
 
-mainRouter.route('/:champName')
+app.route('/')
     .get(function(req, res) {
-        promises.readMultipleFiles([
+        res.render('index.jade');
+    });
+
+app.route('/:champName')
+    .get(function(req, res) {
+        req.params.champName = req.params.champName.toLowerCase();
+        Promise.resolve()
+            .then(function() {
+                if (!res.locals.champNameList[req.params.champName]) {
+                    let err = new Error('Champ name url was invalid');
+                    err.code = 'INVALID_CHAMP';
+                    throw err;
+                }
+            })
+            .catch(function(err) {
+                if (err) {
+                    res.render('invalidChamp.jade');
+                }
+                throw err;
+            })
+            .then(promises.readMultipleFiles.bind(null, [
                 ['data/itemBefore.json',    'itemBefore'],
                 ['data/itemAfter.json',     'itemAfter'],
-                ['data/champBefore.json',   'champBefore'],
-                ['data/champAfter.json',    'champAfter'],
                 ['data/' + req.params.champName + 'Before.json', 'dataBefore'],
                 ['data/' + req.params.champName + 'After.json',  'dataAfter']
-            ])
+            ]))
             .then(function(filesObj) {
                 res.render('champ.jade', {
                     itemBefore:     filesObj['itemBefore'],
                     itemAfter:      filesObj['itemAfter'],
-                    champBefore:    filesObj['champBefore'],
-                    champAfter:     filesObj['champAfter'],
                     dataBefore:     filesObj['dataBefore'],
                     dataAfter:      filesObj['dataAfter']
                 });
@@ -87,9 +104,6 @@ mainRouter.route('/:champName')
             .catch(function(err) { console.log(err.stack); res.sendStatus(500); });
     });
 
-
-// Register the router
-app.use('/', mainRouter);
 
 // Start up the server
 app.listen(app.get('port'), function() {

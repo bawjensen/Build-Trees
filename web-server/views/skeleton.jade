@@ -1,6 +1,6 @@
 html
   head
-    title Hi
+    title Build Trees
 
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
 
@@ -21,28 +21,34 @@ html
     .mdl-layout.mdl-js-layout.mdl-layout--fixed-header
       header.mdl-layout__header
         .mdl-layout__header-row
+
           span.mdl-layout-title
             a.mdl-button.mdl-js-button.mdl-js-ripple-effect.mdl-color-text--primary-contrast(href='/') Home
+
           .mdl-layout-spacer
+
           nav.mdl-navigation
             .mdl-textfield.mdl-js-textfield.mdl-textfield--expandable
               label.mdl-button.mdl-js-button.mdl-button--icon(for='search')
                 i.material-icons search
+
               .mdl-textfield__expandable-holder
                 input#search.mdl-textfield__input(type='search' list='champions')
                 label.mdl-textfield__label(for='search') Enter your query...
 
-            datalist#champions
-              for champObj in champBefore.data
-                option(value=champObj.name)
+                datalist#champions
+                  for champObj in champBefore.data
+                    option(value=champObj.name)
       
       main.mdl-layout__content
         block body-content
 
-      footer.mdl-mini-footer
-        .mdl-mini-footer__left-section
-          p#riot-disclaimer This site isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
+        footer.mdl-mini-footer
+          .mdl-mini-footer__left-section
+            p#riot-disclaimer Build Trees isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games or anyone officially involved in producing or managing League of Legends. League of Legends and Riot Games are trademarks or registered trademarks of Riot Games, Inc. League of Legends © Riot Games, Inc.
 
+    script.
+      var champNameList = !{JSON.stringify(champNameList)};
 
     script.
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

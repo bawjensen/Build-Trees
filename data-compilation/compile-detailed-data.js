@@ -57,10 +57,8 @@ function fetchAndStore() {
     return promises.openDB('mongodb://localhost:27017/lol-data')
         .then(function(newDB) { db = newDB; })
         .then(promises.read.bind(null, 'json-data/item' + MODE + '.json'))
-        .then(JSON.parse)
         .then(function(itemData) { staticItemData = itemData.data; })
         .then(promises.read.bind(null, 'json-data/champNameConverter' + MODE + '.json'))
-        .then(JSON.parse)
         .then(function(nameConverter) { champNameConverter = nameConverter; })
         .then(function() {
             var counter = 0;
@@ -83,14 +81,7 @@ function fetchAndStore() {
                             let build = allBuilds[participant.participantId];
 
                             if (build) {
-                                // if (build.length > 6) console.log(build.map(function(itemId) { return staticItemData[itemId].name; }));
-                                // if (build.length > 5) {
-                                //     build = build.slice(0,5)
-                                // }
-                                // if (participant.championId === 429) {
-                                //     console.log('\nInserting:', build.map(function(itemId) { return staticItemData[itemId].name; }));
-                                // }
-                                champItemBuilds[participant.championId].insert(build);
+                                champItemBuilds[participant.championId].insert(build.slice(0, 6));
                             }
                         });
                     });
@@ -110,7 +101,7 @@ function fetchAndStore() {
 
                 jsonCompatibleTrie.champStrKey = champNameConverter[''+championId].strKey;
 
-                fs.writeFile('web-server/data/' + champName + MODE + '.json', JSON.stringify(jsonCompatibleTrie), function(err) { if (err) console.log(err); });
+                fs.writeFile('web-server/data/' + champName.toLowerCase() + MODE + '.json', JSON.stringify(jsonCompatibleTrie), function(err) { if (err) console.log(err); });
             }
         })
         .catch(function(err) {

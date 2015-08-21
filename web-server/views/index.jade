@@ -2,18 +2,18 @@ extends skeleton
 
 block body-content
   .mdl-grid
-    #introduction.mdl-cell.mdl-cell--12-col.mdl-card.mdl-shadow--4dp
-      .mdl-card__title
-        h1.mdl-card__title-text Welcome!
-      h5.mdl-card__supporting-text This site is all about the builds of different champions, before and after the major AP item rework in Patch 5.13. Click on a champion to get started!
+    #introduction.mdl-cell.mdl-cell--12-col
+      h1 Welcome!
+      h6 This site is all about the builds of different champions, before and after the major AP item rework in Patch 5.13. Click on a champion to get started!
 
     for champObj in champBefore.data
+      - var champLink = '/' + champObj.name.toLowerCase();
       .champDiv.mdl-cell.mdl-cell--1-col.mdl-card.mdl-shadow--4dp.mdl-card--border
         .mdl-card__media
-          a(href='/'+champObj.name)
+          a(href=champLink)
             img(src='http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + champObj.image.full)
         .mdl-card__actions.mdl-card--border
-          a(href='/'+champObj.name).mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect
+          a(href=champLink).mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect
             = champObj.name
 
           //- = champObj.name

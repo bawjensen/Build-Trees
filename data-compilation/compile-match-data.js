@@ -3,8 +3,8 @@ var promises    = require('../helpers/promised.js'),
 
 // --------------------------------------- Global Variables -------------------------------------
 
-var API_KEY             = process.env.RIOT_KEY;
-var DEFAULT_RATE_LIMIT  = 250;
+var API_KEY             = process.env.RIOT_CHALLENGE_KEY;
+var DEFAULT_RATE_LIMIT  = 1000;
 var RATE_LIMIT          = DEFAULT_RATE_LIMIT;
 var MATCH_LIMIT         = process.argv[2] ? parseInt(process.argv[2]) : 10000;
 
@@ -57,7 +57,6 @@ function fetchAndStore() {
     return Promise.all(
         allRegions.map(function(regionObj) {
             return promises.read('json-data/matches/' + (MODE === 'After' ? '5.14' : '5.11') + '/RANKED_SOLO/' + regionObj.filePrefix + '.json')
-                .then(JSON.parse)
                 .catch(function(err) {
                     console.log(regionObj);
                     throw err;
