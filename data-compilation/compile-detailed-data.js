@@ -2,10 +2,10 @@ var fs          = require('fs'),
     promises    = require('../helpers/promised.js'),
     Trie        = require('../helpers/item-build-trie.js');
 
-var LIMIT = process.argv[2] ? parseInt(process.argv[2]) : 10000;
+var LIMIT = process.argv[3] ? parseInt(process.argv[3]) : 10000;
 
-var MODE = process.argv[3] ?
-                (process.argv[3] === 'a' ? 'After' : 'Before') :
+var MODE = process.argv[2] ?
+                (process.argv[2] === 'a' ? 'After' : 'Before') :
                 'After';
 
 console.log('In mode:', MODE);
@@ -63,10 +63,21 @@ function fetchAndStore() {
         .then(function() {
             var counter = 0;
             return new Promise(function(resolve, reject) {
-                db.collection('matches' + MODE)
-                    .find({})
-                    .limit(LIMIT)
-                    .forEach(function(match) {
+                var cursor = db.collection('matches' + MODE)
+                    .find({});
+
+                cursor.count(function(err, count) {
+                    if (err)
+                        throw err;
+
+                    if (count > LIMIT) {
+                        cursor = cursor.limit(LIMIT);
+                    }
+                    else {
+                        LIMIT = count;
+                    }
+
+                    cursor.forEach(function(match) {
                         if (++counter >= LIMIT) {
                             resolve();
                         }
@@ -81,15 +92,15 @@ function fetchAndStore() {
                             let build = allBuilds[participant.participantId];
 
                             if (build) {
-                                champItemBuilds[participant.championId].insert(build.slice(0, 6));
+                                champItemBuilds[participant.championId].insert(build.slice(0, 6), participant.winner);
                             }
                         });
                     });
-                })
-                .then(function() { return champItemBuilds; });
+                });
+            })
+            .then(function() { return champItemBuilds; });
         })
         .then(function(champItemBuilds) {
-
             console.log('Got', Object.keys(champItemBuilds).length, 'builds');
 
             for (var championId in champItemBuilds) {

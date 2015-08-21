@@ -1,8 +1,11 @@
 var BUILD_PERCENT_THRESHOLD = 0.075;
+var WIN_RATE_DECIMAL_NUMBERS = 2;
 
 function Node() {
     this.count = 0;
     this.endedHere = 0;
+    this.buildWon = 0;
+    this.buildLost = 0;
     this.children = {};
 }
 
@@ -10,9 +13,10 @@ function Trie() {
     this.head = new Node();
 }
 
-Trie.prototype.insert = function(item_build) {
+Trie.prototype.insert = function(item_build, winner) {
     var node = this.head;
     ++node.count;
+    winner ? ++node.buildWon : ++node.buildLost;
 
     for (let item of item_build) {
         if (!(item in node.children)) {
@@ -20,6 +24,7 @@ Trie.prototype.insert = function(item_build) {
         }
 
         ++node.children[item].count; // Counts all parts of a build
+        winner ? ++node.children[item].buildWon : ++node.children[item].buildLost;
         node = node.children[item];
     }
 
@@ -139,7 +144,8 @@ function recursiveToTreeJSON(node, tree, staticItemData) {
         tree.children.push({
             name: staticItemData[key].name,
             itemId: key,
-            weight: node.children[key].count,
+            count: node.children[key].count,
+            winRate: parseFloat( (node.children[key].buildWon / (node.children[key].buildWon + node.children[key].buildLost)).toFixed(WIN_RATE_DECIMAL_NUMBERS + 2) ),
             children: []
         });
         recursiveToTreeJSON(node.children[key], tree.children[tree.children.length-1], staticItemData);
@@ -148,7 +154,8 @@ function recursiveToTreeJSON(node, tree, staticItemData) {
 Trie.prototype.toTreeJSON = function(champName, staticItemData) {
     var tree = {
         name: champName,
-        weight: this.head.count,
+        count: this.head.count,
+        winRate: parseFloat( (this.head.buildWon / (this.head.buildWon + this.head.buildLost)).toFixed(WIN_RATE_DECIMAL_NUMBERS + 2) ),
         children: []
     };
 

@@ -11,11 +11,11 @@ var EXPANDED_COLOR = 'lightsteelblue',
     lastId = 0;
 
 function sortNorm(a, b) {
-    return b.weight - a.weight;
+    return b.count - a.count;
 }
 
 function sortReverse(a, b) {
-    return a.weight - b.weight;
+    return a.count - b.count;
 }
 
 function biggestChild(element, reverseSort) {
@@ -50,7 +50,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     root = jsonData;
     root.x0 = width / 2;
     root.y0 = 0;
-    // root.scaleSize = root.weight;
+    // root.scaleSize = root.count;
 
     function collapse(d) {
       if (d.children) {
@@ -60,16 +60,24 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
       }
     }
 
-    var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.weight ? largestValue : elem.weight; }, 0);
-    var widthScale = d3.scale.linear()
+    var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.count ? largestValue : elem.count; }, 0);
+    var imageSizeScale = d3.scale.linear()
         .domain([0, 1])
         .range([STROKE_MIN, STROKE_MAX])
         .clamp(true);
-    var textLabelScale = d3.scale.linear()
+    var textSizeScale = d3.scale.linear()
         .domain([0, 1])
         .range([STROKE_MIN * 1/TEXT_RELATIVE_SCALE, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
-    // var widthScale = d3.scale.linear()
+    var pathOpacityScale = d3.scale.linear()
+        .domain([0, 1])
+        .range([0.2, 0.75])
+        .clamp(true);
+    var imageTextOpacityScale = d3.scale.linear()
+        .domain([0, 1])
+        .range([0.2, 1.0])
+        .clamp(true);
+    // var imageSizeScale = d3.scale.linear()
     //     .domain([0, 1])
     //     .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
     //     .clamp(true);
@@ -110,7 +118,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('y', 1e-6)
             .attr('height', 1e-6)
             .attr('width', 1e-6)
-            // .style('border-radius', function(d) { return widthScale(d.weight) / 2; })
+            // .style('border-radius', function(d) { return imageSizeScale(d.count) / 2; })
             .attr('xlink:href', function(d) {
                 if (d.itemId)
                     return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/item/' + staticItemData.data[d.itemId].image.full);
@@ -125,10 +133,12 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // When a node is triggered for an update, update the image
         nodeUpdate.select('image')
-            .attr('x', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
-            .attr('y', function(d) { return -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2; })
-            .attr('height', function(d) { return Math.max(multiScaler(d), MIN_IMAGE_WIDTH); })
-            .attr('width', function(d) { return Math.max(multiScaler(d), MIN_IMAGE_WIDTH); });
+            // .attr('opacity', function(d) { return d.numWon / (d.numWon + d.numLost); })
+            .attr('opacity', multiOpacityScaler)
+            .attr('x', function(d) { return -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('y', function(d) { return -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2; })
+            .attr('height', function(d) { return Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH); })
+            .attr('width', function(d) { return Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH); });
 
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
@@ -157,7 +167,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 var o = { x: source.x0, y: source.y0 };
                 return diagonal({ source: o, target: o });
             })
-            .style('stroke-width', function(d) { return widthScale(d.target.weight / maxWeight); });
+            .style('stroke-width', function(d) { return imageSizeScale(d.target.count / maxWeight); });
 
         // Enter any new text at the parent's previous position.
         linkNodeEnter.append('text')
@@ -166,19 +176,22 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
             .attr('fill-opacity', 1e-6)
-            .attr('font-size', function(d) { return multiScaler(d, true); })
-            .text(function(d) { return Math.round(100 * (d.target.weight / d.target.parent.weight)) + '%'; });
+            .attr('font-size', function(d) { return multiSizeScaler(d, true); })
+            .text(function(d) { return Math.round(100 * (d.target.count / d.target.parent.count)) + '%'; });
 
         // Upon an update, perform with a transition delay (animation, etc.)
         var linkNodeUpdate = linkNode.transition().duration(duration);
 
         // Transition links to their new position.
         linkNodeUpdate.select('path.link')
+            // .style('stroke-opacity', function(d) { return d.target.numWon / (d.target.numWon + d.target.numLost); })
+            .style('stroke-opacity', function(d) { return multiOpacityScaler(d, true); })
             .attr('d', diagonal);
 
         // Transition text to their new position.
         linkNodeUpdate.select('text')
-            .attr('fill-opacity', 1)
+            // .attr('fill-opacity', function(d) { return d.target.numWon / (d.target.numWon + d.target.numLost); })
+            .attr('fill-opacity', multiOpacityScaler)
             .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
             .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
 
@@ -210,11 +223,19 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     }
 
     // Multi-purpose scaling function, for paths and such
-    function multiScaler(d, isText) {
-        var func = isText ? textLabelScale : widthScale;
+    function multiOpacityScaler(d, isPath) {
+        var func = isPath ? pathOpacityScale : imageTextOpacityScale;
         var element = d.target || d;
 
-        return func((element.scaleSize || element.weight) / maxWeight);
+        return func(element.winRate);
+    }
+
+    // Multi-purpose scaling function, for paths and such
+    function multiSizeScaler(d, isText) {
+        var func = isText ? textSizeScale : imageSizeScale;
+        var element = d.target || d;
+
+        return func((element.scaleSize || element.count) / maxWeight);
     }
 
     // Toggle children on click.
@@ -252,10 +273,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 .attr('height', STROKE_MAX);
         }
         else {
-            image.attr('x', -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2)
-                .attr('y', -1 * Math.max(multiScaler(d), MIN_IMAGE_WIDTH) / 2)
-                .attr('width', Math.max(multiScaler(d), MIN_IMAGE_WIDTH))
-                .attr('height', Math.max(multiScaler(d), MIN_IMAGE_WIDTH));
+            image.attr('x', -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2)
+                .attr('y', -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2)
+                .attr('width', Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH))
+                .attr('height', Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH));
         }
     }
 
@@ -266,10 +287,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
     function toggleTooltip(hoverIn, d) {
         if (hoverIn) {
-            var value = d.weight;
+            var value = d.count;
 
             tooltipText.text(d.name);
-            tooltipValue.text('x' + value);
+            tooltipValue.text('x' + value + '(' + (d.winRate * 100) + '%)');
 
             tooltip.classed('visible', true)
                 .style('left', (d3.event.pageX - 165) + 'px')
