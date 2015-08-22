@@ -5,12 +5,28 @@ This is my submission for the Riot API Challenge 2.0, starting 8/10/2015 and end
 ## How the Data Was Gathered
 The data for this site is based off of the provided data set, of course. The data aggregation and parsing was a two step process.
 
-Step one ([data-compilation/compile-match-data.js](data-compilation/compile-match-data.js)): All 400,000 matches (2 patch versions x 2 queue types x 10 regions x 10,000 matches) were parsing and only the relevant data (participant timeline item purchases, win/loss status, championId) was kept and stored in a MongoDB database hosted locally.
+### Step One:
+([data-compilation/compile-match-data.js](data-compilation/compile-match-data.js)): All 400,000 matches (2 patch versions x 2 queue types x 10 regions x 10,000 matches) were parsing and only the relevant data (participant timeline item purchases, win/loss status, championId) was kept and stored in a MongoDB database hosted locally.
 
-Step two ([data-compilation/compile-detailed-data.js](data-compilation/compile-detailed-data.js)): All 400,000 match data entries were parsed and inserted into 125 [Trie](https://en.wikipedia.org/wiki/Trie)-esque [data structures](helpers/item-build-trie.js), one for each champion (excluding Tahm Kench, who didn't exist in patch 5.11), with all supplementary data (such as number of times built, number of wins/losses) inserted as cargo at each node. These data structures were then serialized as JSON, and saved for use on the web-server at [web-server/data/](web-server/data/).
+Example command (runs the matches gathering step, in the 'After' mode to gather 5.14 data, with a cap of 10000 matches per region):
+
+    node --harmony --use_strict data-compilation/compile-match-data.js a 10000
+
+Note: There must be a mongodb server running on localhost, and on the default 27017 port, with a database labelled `lol-data` in which to store the gathered data.
+
+### Step Two:
+([data-compilation/compile-detailed-data.js](data-compilation/compile-detailed-data.js)): All 400,000 match data entries were parsed and inserted into 125 [Trie](https://en.wikipedia.org/wiki/Trie)-esque [data structures](helpers/item-build-trie.js), one for each champion (excluding Tahm Kench, who didn't exist in patch 5.11), with all supplementary data (such as number of times built, number of wins/losses) inserted as cargo at each node. These data structures were then serialized as JSON, and saved for use on the web-server at [web-server/data/](web-server/data/).
+
+Example command (runs the matches processing step, in the 'Before' mode to gather 5.14 data, with a cap of 10000 matches total):
+
+    node --harmony --use_strict data-compilation/compile-detailed-data.js b 10000
+
+Note: There must be a mongodb server running on localhost, and on the default 27017 port, with a database in the correct format from step one and with data populated from running that script.
 
 ## How the Site Works
 The main landing page is a pretty simple display of every champion. Clicking on a champion will bring you to their specific page, which displays side-by-side a visualization of every build that was used on that champion, with the left being "Before" the item changes and the right being "After".
+
+The site itself is powered by a fairly simple Node.js script file ([web-server/web.js](web-server/web.js)).
 
 ## How the Data Is Displayed
 The data is displayed in the form of a tree with collapsible/expandable branches, with a little bit of a [Sankey Diagram](https://en.wikipedia.org/wiki/Sankey_diagram) thrown in to visually indicate the popularity of that build. This is done by scaling the branch accordingly, both the branch path and the item icon at the end of the branch. The branch paths are also color-coded based on the win-rate of that build, with red being the worst and green being the best, with the win-rate range being from 40% to 60%. Hovering over an item will conjure a tooltip telling you the name of the item, the number of times it was built (often scaled up proportionally to sister builds due to the nature of games being various length), and the win-rate of that build.
