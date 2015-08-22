@@ -1,14 +1,20 @@
 "use strict";
 
-var EXPANDED_COLOR = 'lightsteelblue',
-    COLLAPSED_COLOR = 'white',
-    IMAGE_WIDTH = 20,
-    STROKE_MIN = 5,
-    STROKE_MAX = 40,
-    LAYER_SPACING = 100,
-    MIN_IMAGE_WIDTH = 12,
+var EXPANDED_COLOR      = 'lightsteelblue',
+    COLLAPSED_COLOR     = 'white',
+    IMAGE_WIDTH         = 20,
+    STROKE_MIN          = 5,
+    STROKE_MAX          = 40,
+    LAYER_SPACING       = 100,
+    MIN_IMAGE_WIDTH     = 12,
     TEXT_RELATIVE_SCALE = 0.5,
-    lastId = 0;
+    lastId              = 0,
+    BROWN               = '#493D26',
+    RED                 = '#FF2400',
+    ORANGE              = '#F87217',
+    YELLOW              = '#FFD801',
+    YELLOW_GREEN        = '#B1FB17',
+    GREEN               = '#60D717';
 
 function sortNorm(a, b) {
     return b.count - a.count;
@@ -77,6 +83,12 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .domain([0.45, 0.55])
         .range([0.2, 1.0])
         .clamp(true);
+    // var pathColorScale = d3.scale.linear()
+    //     .domain([0.4, 0.6])
+    //     .range([BROWN, GREEN]);
+    var pathColorScale = d3.scale.quantize()
+        .domain([0.4, 0.6])
+        .range([RED, ORANGE, YELLOW, YELLOW_GREEN, GREEN]);
     // var imageSizeScale = d3.scale.linear()
     //     .domain([0, 1])
     //     .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
@@ -134,7 +146,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         // When a node is triggered for an update, update the image
         nodeUpdate.select('image')
             // .attr('opacity', function(d) { return d.numWon / (d.numWon + d.numLost); })
-            .attr('opacity', multiOpacityScaler)
+            // .attr('opacity', multiOpacityScaler)
             .attr('x', function(d) { return -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2; })
             .attr('y', function(d) { return -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2; })
             .attr('height', function(d) { return Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH); })
@@ -167,6 +179,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 var o = { x: source.x0, y: source.y0 };
                 return diagonal({ source: o, target: o });
             })
+            // .style('stroke', function(d) { return LINK_COLOR.darker(Math.ceil(d.winRate * 4)); })
+            .style('stroke', function(d) { return multiColorScaler(d, true); })
             .style('stroke-width', function(d) { return imageSizeScale(d.target.count / maxWeight); });
 
         // Enter any new text at the parent's previous position.
@@ -175,6 +189,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('y', function(d) { return d.source.y0; })
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
+            .attr('fill', multiColorScaler)
             .attr('fill-opacity', 1e-6)
             .attr('font-size', function(d) { return multiSizeScaler(d, true); })
             .text(function(d) { return Math.round(100 * (d.target.count / d.target.parent.count)) + '%'; });
@@ -185,13 +200,14 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         // Transition links to their new position.
         linkNodeUpdate.select('path.link')
             // .style('stroke-opacity', function(d) { return d.target.numWon / (d.target.numWon + d.target.numLost); })
-            .style('stroke-opacity', function(d) { return multiOpacityScaler(d, true); })
+            // .style('stroke-opacity', function(d) { return multiOpacityScaler(d, true); })
             .attr('d', diagonal);
 
         // Transition text to their new position.
         linkNodeUpdate.select('text')
             // .attr('fill-opacity', function(d) { return d.target.numWon / (d.target.numWon + d.target.numLost); })
-            .attr('fill-opacity', multiOpacityScaler)
+            // .attr('fill-opacity', multiOpacityScaler)
+            .attr('fill-opacity', null)
             .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
             .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
 
@@ -220,6 +236,17 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             d.x0 = d.x;
             d.y0 = d.y;
         });
+    }
+
+    // Multi-purpose scaling function, for paths and such
+    function multiColorScaler(d, isPath) {
+        var element = d.target || d;
+        var result = pathColorScale(element.winRate);
+        if (!isPath) {
+            console.log('element.winRate', element.winRate);
+            console.log('result', result);
+        }
+        return result;
     }
 
     // Multi-purpose scaling function, for paths and such
@@ -284,13 +311,15 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     var tooltip = d3.select('#tooltip');
     tooltip.on('click', function() { console.log('two'); if (tooltip.classed('visible')) tooltip.classed('visible', false); }); // Hide the tooltip on click
     var tooltipText = d3.select('#tooltip .mdl-card__title-text');
-    var tooltipValue = d3.select('#tooltip .mdl-card__subtitle-text');
+    var tooltipCount = d3.select('#tooltip #count');
+    var tooltipWinRate = d3.select('#tooltip #win-rate');
     function toggleTooltip(hoverIn, d) {
         if (hoverIn) {
             var value = d.count;
 
             tooltipText.text(d.name);
-            tooltipValue.text('x' + value + '(' + (d.winRate * 100).toFixed(2) + '%)');
+            tooltipCount.text('x' + value);
+            tooltipWinRate.text('(' + (d.winRate * 100).toFixed(2) + '%)');
 
             tooltip.classed('visible', true)
                 .style('left', (d3.event.pageX - 165) + 'px')
