@@ -26,7 +26,7 @@ Note: There must be a mongodb server running on localhost, and on the default 27
 ## How the Site Works
 The main landing page is a pretty simple display of every champion. Clicking on a champion will bring you to their specific page, which displays side-by-side a visualization of every build that was used on that champion, with the left being "Before" the item changes and the right being "After".
 
-The site itself is powered by a fairly simple Node.js script file ([web-server/web.js](web-server/web.js)).
+The site itself is powered by a fairly simple Node.js script file ([web-server/web.js](web-server/web.js)), and hosted on Heroku. The web-server can be started with `npm start` from anywhere inside the repo.
 
 ## How the Data Is Displayed
 The data is displayed in the form of a tree with collapsible/expandable branches, with a little bit of a [Sankey Diagram](https://en.wikipedia.org/wiki/Sankey_diagram) thrown in to visually indicate the popularity of that build. This is done by scaling the branch accordingly, both the branch path and the item icon at the end of the branch. The branch paths are also color-coded based on the win-rate of that build, with red being the worst and green being the best, with the win-rate range being from 40% to 60%. Hovering over an item will conjure a tooltip telling you the name of the item, the number of times it was built (often scaled up proportionally to sister builds due to the nature of games being various length), and the win-rate of that build.
