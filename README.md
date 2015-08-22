@@ -17,7 +17,7 @@ Note: There must be a mongodb server running on localhost, and on the default 27
 ### Step Two:
 ([data-compilation/compile-detailed-data.js](data-compilation/compile-detailed-data.js)): All 400,000 match data entries were parsed and inserted into 125 [Trie](https://en.wikipedia.org/wiki/Trie)-esque [data structures](helpers/item-build-trie.js), one for each champion (excluding Tahm Kench, who didn't exist in patch 5.11), with all supplementary data (such as number of times built, number of wins/losses) inserted as cargo at each node. These data structures were then serialized as JSON, and saved for use on the web-server at [web-server/data/](web-server/data/).
 
-Example command (runs the matches processing step, in the 'Before' mode to gather 5.14 data, with a cap of 10000 matches total):
+Example command (runs the matches processing step, in the 'Before' mode to gather 5.11 data, with a cap of 10000 matches total):
 
     node --harmony --use_strict data-compilation/compile-detailed-data.js b 10000
 
