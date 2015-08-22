@@ -313,8 +313,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             var value = d.count;
 
             tooltipText.text(d.name);
-            tooltipCount.text('x' + value);
-            tooltipWinRate.text('(' + (d.winRate * 100).toFixed(2) + '%)');
+            tooltipCount.text('pick: ' + value);
+            tooltipWinRate.text('won: ' + (d.winRate * 100).toFixed(2) + '%');
 
             tooltip.classed('visible', true)
                 .style('left', (d3.event.pageX - 165) + 'px')
