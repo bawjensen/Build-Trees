@@ -189,7 +189,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             .attr('y', function(d) { return d.source.y0; })
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
-            .attr('fill', multiColorScaler)
+            .attr('fill', '#777777')
             .attr('fill-opacity', 1e-6)
             .attr('font-size', function(d) { return multiSizeScaler(d, true); })
             .text(function(d) { return Math.round(100 * (d.target.count / d.target.parent.count)) + '%'; });
