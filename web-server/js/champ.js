@@ -326,10 +326,22 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     }
 }
 
-if (!(dataBefore && dataAfter)) {
-    alert('There doesn\'t seem to be enough data for this champion.');
-}
-else {
+var dataBefore, itemBefore, champBefore, dataAfter, itemAfter, champAfter;
+$.when(
+    $.getJSON('data/' + window.location.pathname + 'Before.json',   function(data) { dataBefore = data; }),
+    $.getJSON('data/itemBefore.json',                               function(data) { itemBefore = data; }),
+    $.getJSON('data/champBefore.json',                              function(data) { champBefore = data; })
+)
+.then(function() {
+    $('#before-container .loading-spinner').hide();
     plot(dataBefore, itemBefore, champBefore, '#before-container', true);
-    plot(dataAfter, itemAfter, champBefore, '#after-container', false);
-}
+});
+$.when(
+    $.getJSON('data/' + window.location.pathname + 'After.json',   function(data) { dataAfter = data; }),
+    $.getJSON('data/itemAfter.json',                               function(data) { itemAfter = data; }),
+    $.getJSON('data/champAfter.json',                              function(data) { champAfter = data; })
+)
+.then(function() {
+    $('#after-container .loading-spinner').hide();
+    plot(dataAfter, itemAfter, champAfter, '#after-container', false);
+});

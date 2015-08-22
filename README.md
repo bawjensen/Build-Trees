@@ -12,7 +12,10 @@ The data for this site is based off of the provided data set, of course. The dat
 
 Step one ([data-compilation/compile-match-data.js](data-compilation/compile-match-data.js)): All 400,000 matches (2 patch versions x 2 queue types x 10 regions x 10,000 matches) were parsing and only the relevant data (participant timeline item purchases, win/loss status, championId) was kept and stored in a MongoDB database hosted locally.
 
-Step two ([data-compilation/compile-detailed-data.js](data-compilation/compile-detailed-data.js)): All 400,000 match data entries were parsed and inserted into a [Trie](https://en.wikipedia.org/wiki/Trie)-esque [data structure](helpers/item-build-trie.js), with all supplementary data (such as number of times built, number of wins/losses) inserted as cargo at each node. This data structure was then serialized as JSON, and saved for use on the web-server at [web-server/data/](web-server/data/).
+Step two ([data-compilation/compile-detailed-data.js](data-compilation/compile-detailed-data.js)): All 400,000 match data entries were parsed and inserted into 125 [Trie](https://en.wikipedia.org/wiki/Trie)-esque [data structures](helpers/item-build-trie.js), one for each champion (excluding Tahm Kench, who didn't exist in patch 5.11), with all supplementary data (such as number of times built, number of wins/losses) inserted as cargo at each node. These data structures were then serialized as JSON, and saved for use on the web-server at [web-server/data/](web-server/data/).
+
+## How the Data Is Displayed
+The data for this site is all funneled into [d3.js](http://d3js.org/), using code inspired by [this example collapsible d3 tree](http://bl.ocks.org/mbostock/4339083) and visual inspiration from [this use of that example](http://www.brightpointinc.com/interactive/budget/index.html?source=d3js). Extra features such as text were added as needed, and the code powering the whole visualization can be found in the file [web-server/js/champ.js](web-server/js/champ.js).
 
 ## Stack
 
