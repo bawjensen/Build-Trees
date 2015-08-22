@@ -14,7 +14,7 @@ var EXPANDED_COLOR      = 'lightsteelblue',
     ORANGE              = '#F87217',
     YELLOW              = '#FFD801',
     YELLOW_GREEN        = '#B1FB17',
-    GREEN               = '#60D717';
+    GREEN               = '#6CC417';
 
 function sortNorm(a, b) {
     return b.count - a.count;
