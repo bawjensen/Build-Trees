@@ -241,12 +241,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     // Multi-purpose scaling function, for paths and such
     function multiColorScaler(d, isPath) {
         var element = d.target || d;
-        var result = pathColorScale(element.winRate);
-        if (!isPath) {
-            console.log('element.winRate', element.winRate);
-            console.log('result', result);
-        }
-        return result;
+        return pathColorScale(element.winRate);
     }
 
     // Multi-purpose scaling function, for paths and such
