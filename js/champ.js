@@ -1,1 +1,1 @@
-web-server/js/champ.js
+../web-server/js/champ.js

@@ -1,1 +1,1 @@
-web-server/js/script.js
+../web-server/js/script.js
