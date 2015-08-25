@@ -4,7 +4,9 @@
 
 var buildTrees = angular.module('buildTrees', [
   'ngRoute',
-  'ngResource'
+  'ngResource',
+  'angulartics',
+  'angulartics.google.analytics'
 ]);
 
 buildTrees.factory('ChampDataEntry', function($resource, $q, $routeParams) {
