@@ -30,7 +30,7 @@ function createNameList() {
             var newData = {};
 
             for (var strKey in data) {
-                newData[data[strKey].name.toLowerCase()] = 1;
+                newData[data[strKey].name.toLowerCase()] = data[strKey].name;
             }
 
             fs.writeFile('json-data/champNameList.json', JSON.stringify(newData));

@@ -31,7 +31,7 @@ app.route('*')
     .all(function(req, res, next) {
         promises.readMultipleFiles([
                 ['data/champBefore.json', 'champBefore'],
-                ['data/champAfter.json', 'champAfter'],
+                // ['data/champAfter.json', 'champAfter'],
                 ['data/champNameList.json', 'champNameList']
             ])
             .then(function(filesObj) {
