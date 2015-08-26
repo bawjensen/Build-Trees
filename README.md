@@ -1,6 +1,6 @@
 # Item Build Trees
 
-This is my submission for the Riot API Challenge 2.0, starting 8/10/2015 and ending 8/31/2015. It is a website displaying, in a visual/interactive format, statistical data regarding a large change to AP items in patch 5.13, and you can see the live version at [buildtrees.bawjensen.com](http://buildtrees.bawjensen.com).
+This is my submission for the Riot API Challenge 2.0, starting 8/10/2015 and ending 8/31/2015. This repository has two primary branches, and I prefer the `gh-pages` branch be considered as my entry in the competition. It is a website displaying, in a visual/interactive format, statistical data regarding a large change to AP items in patch 5.13, and you can see the live version at [buildtrees.bawjensen.com](http://buildtrees.bawjensen.com).
 
 ## How the Data Was Gathered
 The data for this site is based off of the provided data set. The data aggregation and parsing was a two step process.
