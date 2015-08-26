@@ -23,7 +23,7 @@ buildTrees.controller('MainCtrl', function($scope, $location, $window) {
   });
 });
 
-buildTrees.controller('ChampDataCtrl', function($scope, ChampDataEntry) {
+buildTrees.controller('ChampDataCtrl', function($scope, $location, ChampDataEntry) {
   ChampDataEntry('After').then(function(result) {
       $('#after-container .loading-spinner').hide();
       plot(result.data, result.item, result.champ, '#after-container', false);
@@ -32,20 +32,21 @@ buildTrees.controller('ChampDataCtrl', function($scope, ChampDataEntry) {
   ChampDataEntry('Before').then(function(result) {
       $('#before-container .loading-spinner').hide();
       plot(result.data, result.item, result.champ, '#before-container', true);
-    });
+    })
+    .catch(function(err) { $location.path('/404') });
 });
 
 buildTrees.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
       when('/', {
-        templateUrl: 'web-server/views/index.html'
-      }).
-      when('/:champName', {
-        templateUrl: 'web-server/views/champ.html',
+        templateUrl: 'views/index.html'
+      })
+      .when('/404', {
+        templateUrl: 'views/invalidChamp.html'
+      })
+      .when('/:champName', {
+        templateUrl: 'views/champ.html',
         controller: 'ChampDataCtrl'
-      }).
-      otherwise({
-        redirectTo: '/404.html'
       });
   }]);
