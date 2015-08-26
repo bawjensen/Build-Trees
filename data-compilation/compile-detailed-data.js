@@ -94,7 +94,7 @@ function fetchAndStore() {
                             let build = allBuilds[participant.participantId];
 
                             if (build) {
-                                 // Only insert the first 6 items
+                                // Only insert the first 6 items
                                 champItemBuilds[participant.championId].insert(build.slice(0, 6), participant.winner);
                             }
                         });
