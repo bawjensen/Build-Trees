@@ -1,84 +1,73 @@
-var BUILD_PERCENT_THRESHOLD = 0.075;
-var WIN_RATE_DECIMAL_NUMBERS = 2;
+/*
+Script file for a new data structure optimized for holding the builds of a champion
+along with how many times the specific items were bought.
+*/
 
+// Global variables
+var BUILD_PERCENT_THRESHOLD = 0.075; // Percentage threshold for not pruning a given build, when using percentage pruning
+var WIN_RATE_DECIMAL_NUMBERS = 2; // Number of decimal places to truncate win rate percentage
+
+// Class for a Trie Node, containing various cargo data values
 function Node() {
-    this.count = 0;
-    this.endedHere = 0;
-    this.buildWon = 0;
-    this.buildLost = 0;
-    this.children = {};
+    this.count = 0; // Number of times item build was purchased
+    this.endedHere = 0; // Number of builds in which this was the final item
+    this.buildWon = 0; // Number of builds that won with this item
+    this.buildLost = 0; // Number of builds that lost with this item
+    this.children = {}; // Children Nodes object, not array, for quicker access of specific children
 }
 
+// Class for the Trie data structure
 function Trie() {
-    this.head = new Node();
+    this.head = new Node(); // Create the head as an empty node, because it is unique in the trie
 }
 
+// Insert an item build (as an array of item ids) into the trie, updating values as necessary
+// 'winner' flag is used to update buildWon and buildLost
 Trie.prototype.insert = function(item_build, winner) {
     var node = this.head;
-    ++node.count;
-    winner ? ++node.buildWon : ++node.buildLost;
+    ++node.count; // Always increment the head, as it signifies the number of times this champ was played
+    winner ? ++node.buildWon : ++node.buildLost; // Increment the __champ's__ winrate
 
+    // Simple depth-first iteration through a tree, iterative style
     for (let item of item_build) {
         if (!(item in node.children)) {
             node.children[item] = new Node();
         }
 
-        ++node.children[item].count; // Counts all parts of a build
-        winner ? ++node.children[item].buildWon : ++node.children[item].buildLost;
-        node = node.children[item];
+        ++node.children[item].count; // Counts whenever an item was even a part of a build
+        winner ? ++node.children[item].buildWon : ++node.children[item].buildLost; // Increment win/loss
+        node = node.children[item]; // Set node to child
     }
 
-    ++node.endedHere;
+    ++node.endedHere; // Increment the ending point of the build
 };
 
-function recursiveNormalize_v3(node) {
+// Function to recursively 'normalize' the count value of a Trie, by scaling
+// up all children values until their sum matches the parent's count
+function recursiveNormalize(node) {
     var shortedRatio;
     if (Object.keys(node.children).length !== 0) {
         let childrenSum = Object.keys(node.children).reduce(function(sumSoFar, childKey) { return sumSoFar + node.children[childKey].count; }, 0);
         shortedRatio =  node.count / childrenSum;
-        // console.log(node.count, childrenSum, shortedRatio);
     }
 
     for (var key in node.children) {
         node.children[key].count = Math.round(node.children[key].count * shortedRatio);
-        recursiveNormalize_v3(node.children[key]);
+        recursiveNormalize(node.children[key]); // Important that recursion happens after up-scaling
     }
 }
-// More "true", but things become small near the end
-function recursiveNormalize_v2(node, numToKeep) {
-    var shortedRatio;
-    if (Object.keys(node.children).length !== 0) {
-        let childrenSum = (node.count - node.endedHere);
-        shortedRatio = ((node.endedHere * numToKeep) + childrenSum) / childrenSum;
-    }
-
-    for (var key in node.children) {
-        node.children[key].count = Math.round(node.children[key].count * shortedRatio);
-        recursiveNormalize_v2(node.children[key], numToKeep);
-    }
-}
-// Makes everything more visible, but downside is children are sometimes bigger than parents
-function recursiveNormalize(node, numToKeep, cumulativeShorted) {
-    if (Object.keys(node.children).length !== 0) {
-        var childrenSum = (node.count - node.endedHere);
-        var shouldBe = ((node.endedHere + cumulativeShorted) * numToKeep) + childrenSum;
-        var shortedRatio = shouldBe / childrenSum;
-    }
-
-    for (var key in node.children) {
-        recursiveNormalize(node.children[key], numToKeep, cumulativeShorted + node.endedHere);
-        node.children[key].count = Math.round(node.children[key].count * shortedRatio);
-    }
-}
-Trie.prototype.normalizePartialBuilds = function(numToKeep) {
-    // recursiveNormalize(this.head, numToKeep, 0);
-    // recursiveNormalize_v2(this.head, numToKeep);
-    recursiveNormalize_v3(this.head);
+// Normalizes the trie to remove effects of item builds terminating early and
+// leaving the lower portions of trie with very small counts
+Trie.prototype.normalizePartialBuilds = function() {
+    recursiveNormalize(this.head);
 }
 
+// Comparison function for sorting an array of arrays high to low
 function comp(a, b) {
     return b[0] - a[0];
 }
+// Recursively prunes the trie down to a given number of children per node,
+// only keeping the highest count ones
 function recursivePrune(node, numToKeep) {
     if (Object.keys(node.children).length === 0) return;
 
@@ -97,48 +86,14 @@ function recursivePrune(node, numToKeep) {
         delete node.children[ sortable[i][1] ];
     }
 }
+// Prunes the trie down to a certain number of children per node, keeping largest children
 Trie.prototype.prune = function(numToKeep) {
     recursivePrune(this.head, numToKeep);
-    this.normalizePartialBuilds(numToKeep);
+    this.normalizePartialBuilds();
 }
 
-function recursiveToJSON(node, data, parentIndex, parentCount, nodeLabel, staticItemData) {
-    if ((node.count / parentCount) < BUILD_PERCENT_THRESHOLD) return;
-
-    var index = data.nodes.length; // Index of the item about the be pushed
-    data.nodes.push({ name: nodeLabel });
-    data.links.push({ source: parentIndex, target: index, value: (nodeLabel !== '' ? node.count : 0) }); // Hiding empty nodes by giving 0 width
-
-    for (var key in node.children) {
-        recursiveToJSON(node.children[key],
-            data,
-            index,
-            node.count,
-            key !== 'null' ? staticItemData[key].name : '',
-            staticItemData);
-    }
-}
-Trie.prototype.toJSON = function(champName, staticItemData) {
-    var data = { nodes: [], links: [] };
-
-    data.nodes.push({ name: champName });
-    for (var key in this.head.children) {
-        recursiveToJSON(this.head.children[key], data, 0, this.head.count, (key !== 'null' ? staticItemData[key].name : ''), staticItemData);
-    }
-
-    return JSON.stringify(data);
-}
-
-function recursiveBubble(node, partialsCount) {
-    node.count += partialsCount;
-    for (var key in node.children) {
-        recursiveBubble(node.children[key], partialsCount + node.endedHere);
-    }
-}
-Trie.prototype.bubblePartialBuilds = function() {
-    recursiveBubble(this.head, 0);
-}
-
+// Recursively converts the Trie data struture into a serializable object for the JSON format,
+// storing only useful data and performing minimal pre-processing
 function recursiveToTreeJSON(node, tree, staticItemData) {
     for (var key in node.children) {
         tree.children.push({
@@ -151,6 +106,8 @@ function recursiveToTreeJSON(node, tree, staticItemData) {
         recursiveToTreeJSON(node.children[key], tree.children[tree.children.length-1], staticItemData);
     }
 }
+// Converts the Trie data struture into a serializable object for the JSON format in the format expected
+// by D3.js' tree structure, storing only useful data and performing minimal pre-processing
 Trie.prototype.toTreeJSON = function(champName, staticItemData) {
     var tree = {
         name: champName,

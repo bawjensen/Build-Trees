@@ -1,63 +1,72 @@
-"use strict";
+'use strict';
 
-var EXPANDED_COLOR      = 'lightsteelblue',
-    COLLAPSED_COLOR     = 'white',
-    IMAGE_WIDTH         = 20,
+/*
+Script file to display d3, collapsible, Sankey-Diagram-esque trees of item builds for a champion.
+*/
+
+// Global constants
+var IMAGE_WIDTH         = 20,
     STROKE_MIN          = 5,
     STROKE_MAX          = 40,
     LAYER_SPACING       = 100,
     MIN_IMAGE_WIDTH     = 12,
     TEXT_RELATIVE_SCALE = 0.5,
     lastId              = 0,
-    BROWN               = '#493D26',
     RED                 = '#FF2400',
     ORANGE              = '#F87217',
     YELLOW              = '#FFD801',
     YELLOW_GREEN        = '#B1FB17',
     GREEN               = '#6CC417';
 
+// Functions for sorting in different orderings
 function sortNorm(a, b) {
     return b.count - a.count;
 }
-
 function sortReverse(a, b) {
     return a.count - b.count;
 }
 
+// Grab the biggest child from sorted list, making use of how it was sorted
 function biggestChild(element, reverseSort) {
     var index = reverseSort ? element.children.length-1 : 0;
     return element.children[index];
 }
 
+// Master function to display the trees
 function plot(jsonData, staticItemData, staticChampData, containerSelector, reverseSort) {
     var margin = {top: 20, right: 20, bottom: 20, left: 20},
-      width = d3.select(containerSelector).node().getBoundingClientRect().width - margin.right - margin.left,
-      height = (LAYER_SPACING * 7) - margin.top - margin.bottom;
+        // Set width based on container
+        width = d3.select(containerSelector).node().getBoundingClientRect().width - margin.right - margin.left,
+        // Set height based on tree layer spacing
+        height = (LAYER_SPACING * 7) - margin.top - margin.bottom;
 
     var duration = 750,
-      root;
+        root;
 
+    // Create the d3 tree
     var tree = d3.layout.tree()
         .size([width, height])
         .separation(function separation(a, b) {
             return a.parent == b.parent ? 0.125 : 0.25;
         })
-        .sort(reverseSort ? sortReverse : sortNorm);
+        .sort(reverseSort ? sortReverse : sortNorm); // Possibly reverse the children ordering
 
-    var diagonal = d3.svg.diagonal()
+    var diagonal = d3.svg.diagonal() // Diagonal structure for tree paths/links
       .projection(function(d) { return [d.x, d.y]; });
 
+    // Create SVG
     var svg = d3.select(containerSelector).append('svg')
         .attr('width', width + margin.right + margin.left)
         .attr('height', height + margin.top + margin.bottom)
       .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
+    // Data
     root = jsonData;
     root.x0 = width / 2;
     root.y0 = 0;
-    // root.scaleSize = root.count;
 
+    // Collapses a node
     function collapse(d) {
       if (d.children) {
         d._children = d.children;
@@ -66,40 +75,33 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
       }
     }
 
-    var maxWeight = jsonData.children.reduce(function(largestValue, elem) { return largestValue > elem.count ? largestValue : elem.count; }, 0);
-    var imageSizeScale = d3.scale.linear()
+    // Set a global scaler as the largest tier 1 child
+    var maxWeight = root.children.reduce(function(largestValue, elem) { return largestValue > elem.count ? largestValue : elem.count; }, 0);
+
+    // Various useful scaling functions
+    var imageSizeScale = d3.scale.linear() // Scales the images based on pick rate
         .domain([0, 1])
         .range([STROKE_MIN, STROKE_MAX])
         .clamp(true);
-    var textSizeScale = d3.scale.linear()
+    var textSizeScale = d3.scale.linear() // Scales the text based on pick rate
         .domain([0, 1])
         .range([STROKE_MIN * 1/TEXT_RELATIVE_SCALE, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
-    var pathOpacityScale = d3.scale.linear()
-        .domain([0.4, 0.6])
-        .range([0.2, 0.75])
-        .clamp(true);
-    var imageTextOpacityScale = d3.scale.linear()
-        .domain([0.45, 0.55])
-        .range([0.2, 1.0])
-        .clamp(true);
-    // var pathColorScale = d3.scale.linear()
-    //     .domain([0.4, 0.6])
-    //     .range([BROWN, GREEN]);
-    var pathColorScale = d3.scale.quantize()
+    var pathColorScale = d3.scale.quantize() // Colors the paths based on win rate
         .domain([0.4, 0.6])
         .range([RED, ORANGE, YELLOW, YELLOW_GREEN, GREEN]);
-    // var imageSizeScale = d3.scale.linear()
-    //     .domain([0, 1])
-    //     .range([STROKE_MIN, STROKE_MIN + ((STROKE_MAX - STROKE_MIN) / 2)])
-    //     .clamp(true);
 
+    // Collapse the tree
     root.children.forEach(collapse);
+    // Display the tree
     update(root);
-    click(biggestChild(root, reverseSort));
+    // Open the biggest child
+    var opening = biggestChild(root, reverseSort);
+    opening.x0 = root.x0;
+    opening.y0 = root.y0;
+    click(opening);
 
-    d3.select(self.frameElement).style('height', '800px');
-
+    // Updates the tree after changes
     function update(source) {
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse(),
@@ -145,8 +147,6 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // When a node is triggered for an update, update the image
         nodeUpdate.select('image')
-            // .attr('opacity', function(d) { return d.numWon / (d.numWon + d.numLost); })
-            // .attr('opacity', multiOpacityScaler)
             .attr('x', function(d) { return -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2; })
             .attr('y', function(d) { return -1 * Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH) / 2; })
             .attr('height', function(d) { return Math.max(multiSizeScaler(d), MIN_IMAGE_WIDTH); })
@@ -199,14 +199,10 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // Transition links to their new position.
         linkNodeUpdate.select('path.link')
-            // .style('stroke-opacity', function(d) { return d.target.numWon / (d.target.numWon + d.target.numLost); })
-            // .style('stroke-opacity', function(d) { return multiOpacityScaler(d, true); })
             .attr('d', diagonal);
 
         // Transition text to their new position.
         linkNodeUpdate.select('text')
-            // .attr('fill-opacity', function(d) { return d.target.numWon / (d.target.numWon + d.target.numLost); })
-            // .attr('fill-opacity', multiOpacityScaler)
             .attr('fill-opacity', null)
             .attr('x', function(d) { return (d.target.x + d.source.x) * 0.5; })
             .attr('y', function(d) { return (d.target.y + d.source.y) * 0.5; });
@@ -242,14 +238,6 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     function multiColorScaler(d, isPath) {
         var element = d.target || d;
         return pathColorScale(element.winRate);
-    }
-
-    // Multi-purpose scaling function, for paths and such
-    function multiOpacityScaler(d, isPath) {
-        var func = isPath ? pathOpacityScale : imageTextOpacityScale;
-        var element = d.target || d;
-
-        return func(element.winRate);
     }
 
     // Multi-purpose scaling function, for paths and such
@@ -325,26 +313,3 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         }
     }
 }
-
-// var dataBefore, itemBefore, champBefore, dataAfter, itemAfter, champAfter;
-// $.when(
-//     $.getJSON('data/' + window.location.hash + 'Before.json',   function(data) { dataBefore = data; }),
-//     $.getJSON('data/itemBefore.json',                           function(data) { itemBefore = data; }),
-//     $.getJSON('data/champBefore.json',                          function(data) { champBefore = data; })
-// )
-// .then(function() {
-//     console.log('yay');
-//     $('#before-container .loading-spinner').hide();
-//     plot(dataBefore, itemBefore, champBefore, '#before-container', true);
-// });
-
-// $.when(
-//     $.getJSON('data/' + window.location.hash + 'After.json',   function(data) { dataAfter = data; }),
-//     $.getJSON('data/itemAfter.json',                           function(data) { itemAfter = data; }),
-//     $.getJSON('data/champAfter.json',                          function(data) { champAfter = data; })
-// )
-// .then(function() {
-//     console.log('yay two');
-//     $('#after-container .loading-spinner').hide();
-//     plot(dataAfter, itemAfter, champAfter, '#after-container', false);
-// });

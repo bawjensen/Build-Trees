@@ -1,3 +1,8 @@
+/*
+Script file for taking all of the data stored temporarily in MongoDB, and converting
+it to its final, more immediately usable form in JSON.
+*/
+
 var fs          = require('fs'),
     promises    = require('../helpers/promised.js'), // Helper functions that 'promisify' useful behaviors
     Trie        = require('../helpers/item-build-trie.js'); // Custom data structure for storing builds

@@ -1,20 +1,27 @@
-var fs      = require('fs'),
+/*
+Script file to promisify various useful functions.
+*/
+
+var fs          = require('fs'),
     MongoClient = require('mongodb').MongoClient,
-    request = require('request');
+    request     = require('request');
 
 // --------------------------------------- Helpers ---------------------------------------
 
+// Logs the error before rethrowing - not for catching errors, but for seeing them
 function logErrorAndRethrow(err) {
     console.error(err.stack);
     throw err;
 }
 
+// Dummy function to stand in for default behavior
 function rethrowError(err) {
     throw err;
 }
 
 // --------------------------------------- Main Functions --------------------------------
 
+// Opens a database
 function openDB(url) {
     return new Promise(function(resolve, reject) {
         MongoClient.connect(url, function(err, db) {
@@ -26,6 +33,7 @@ function openDB(url) {
     });
 }
 
+// Reads JSON data from a file
 function read(filepath) {
     return new Promise(function(resolve, reject) {
         fs.readFile(filepath, 'utf8', function(err, data) {
@@ -37,6 +45,7 @@ function read(filepath) {
     });
 }
 
+// Reads JSON data from multiple files
 // Note, doesn't error on file missing, rather returns null
 function readMultipleFiles(iterable) {
     var filesObj = {};
@@ -50,6 +59,7 @@ function readMultipleFiles(iterable) {
         });
 }
 
+// Returns the response for the provided URL
 function get(url) {
     return new Promise(function(resolve, reject) {
         request.get(url, function(err, resp, body) {
@@ -61,43 +71,44 @@ function get(url) {
     });
 }
 
+// Persistent handler for the response of a get request on the given url. If the response code
+// corresponds to specific HTTP codes, it will try again or terminate as appropriate. 
 function persistentCallback(url, identifier, resolve, reject, err, resp, body) {
     if (err) {
         reject(err);
     }
-    else if (resp.statusCode === 429) {
-        // console.error('Got rate limited');
+    else if (resp.statusCode === 429) { // 429 is rate limited, try again in the specified time or 1 second
         setTimeout(function() {
             request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
-        }, parseInt(resp.headers['retry-after']));
+        }, parseInt(resp.headers['retry-after'] || '1000'));
     }
-    else if (resp.statusCode === 503 || resp.statusCode === 500 || resp.statusCode === 504) {
-        // console.error('Got', resp.statusCode, 'code, retrying in 0.5 sec (', url, ')');
+    else if (resp.statusCode === 503 || resp.statusCode === 500 || resp.statusCode === 504) { // Various (temporary) error codes, try again in 0.5 sec
         setTimeout(function() {
             request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
         }, 500);
     }
-    else if (resp.statusCode === 404) {
+    else if (resp.statusCode === 404) { // Error with url most likely, create a new error object and send it
         let error = new Error('Resp code was 404: ' + url);
         error.http_code = 404;
         error.identifier = identifier;
         reject(error);
     }
-    else if (resp.statusCode !== 200) {
+    else if (resp.statusCode !== 200) { // Catch all for other codes that aren't specified or 200-OK
         reject(Error('Resp status code not 200: ' + resp.statusCode + '(' + url + ')'));
     }
     else {
         resolve(body);
     }
 }
+// Persistently tries to get the desired response from the given url, possibly with a provided identifier
 function persistentGet(url, identifier) {
     return new Promise(function get(resolve, reject) {
-            request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
+            request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject)); // Perform the 'GET'
         })
-        .catch(function(err) {
-            if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') {
+        .catch(function catchResetOrTimeOut(err) {
+            if (err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT') { // If typical errors
                 console.error('\rIssue with:', url, '\n', err);
-                return new Promise(function get(resolve, reject) {
+                return new Promise(function get(resolve, reject) { // Try again
                     request.get(url, persistentCallback.bind(null, url, identifier, resolve, reject));
                 });
             }
@@ -107,10 +118,12 @@ function persistentGet(url, identifier) {
         })
         .then(JSON.parse)
         .catch(function catchEndOfInputError(err) {
-            if (err instanceof SyntaxError)
+            if (err instanceof SyntaxError) {
                 console.log('\rIgnoring:', url, err);
-            else
+            }
+            else {
                 throw err;
+            }
         })
         .then(function returnWithIdentifier(data) {
             return data ? // Return data+identifier, data or null
@@ -122,6 +135,7 @@ function persistentGet(url, identifier) {
         .catch(logErrorAndRethrow);
 }
 
+// Function to maintain a set number of active requests
 function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, errorHandler) {
     return new Promise(function(resolve, reject) {
         var isSet = (iterable instanceof Set) ? true : false;
@@ -134,13 +148,13 @@ function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, error
         var iter = iterable[Symbol.iterator]();
         var elem = iter.next();
 
+        // Callback to handle responses, and send requests
         var handleResponseAndSendNext = function() {
             --numActive;
             ++numReceived;
 
-            // if ( (numReceived % reportIncrement === 0) || (numReceived === numTotal) ) {
-                process.stdout.write('\rReached ' + numReceived + ' / ' + numTotal + ' requests');
-            // }
+            // Write without a newline, and overwrite the existing output on this line (creates a nice progress message)
+            process.stdout.write('\rReached ' + numReceived + ' / ' + numTotal + ' requests');
 
             if (numReceived >= numTotal) {
                 process.stdout.write('\n');
@@ -159,6 +173,7 @@ function rateLimitedGet(iterable, limitSize, promiseMapper, resultHandler, error
             }
         };
 
+        // Initial call
         handleResponseAndSendNext();
     })
     .catch(logErrorAndRethrow);

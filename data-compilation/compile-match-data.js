@@ -1,3 +1,8 @@
+/*
+Script file for compiling all of the match data into MongoDB, using the match ids supplied
+as part of the challenge parameters.
+*/
+
 var promises    = require('../helpers/promised.js'), // Custom-built helper functions, promisifying many features
     querystring = require('querystring');
 
