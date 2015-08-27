@@ -35,13 +35,22 @@ The data for this site is all funneled into [d3.js](http://d3js.org/), using cod
 
 ## Tech Stack
 
-+ Node.js
 + MongoDB
 + Angular.js
++ Node.js
++ Jade
 + D3.js
 + jQuery
 + Material Design Lite (MDL)
 
-This project was built using the MEAN tech stack. MongoDB was used to temporarily store data before processing, with the final storage method being a simple JSON file system. Express wasn't really used, given that the site is hosted statically by GitHub. Angular.js was used for the front-end routing aspect of the framework. Node.js was used for the initial data gathering/processing. Lastly, Google's [MDL](http://www.getmdl.io/) was used for the front-end design work.
+This project was built using the MEAN tech stack.
++ MongoDB was used to temporarily store data before processing, with the final storage method being a simple JSON file system.
++ Express wasn't really used, given that the site is hosted statically by GitHub.
++ Angular.js was used for the front-end routing aspect of the framework.
++ Node.js was used for the initial data gathering/processing.
++ Jade was used to construct the template partials, pre-compiled into HTML, for use by Angular.js.
++ D3.js was used to display the item build trees, and make them interactive.
++ jQuery was used for minor stuff like the search function.
++ Lastly, Google's [MDL](http://www.getmdl.io/) was used for the front-end design work.
 
 The final product makes heavy use of d3.js to display a variation on a [Sankey Diagram](https://en.wikipedia.org/wiki/Sankey_diagram), depicting the various item builds that summoners used on various champions in specified games of League of Legends, which was supplied as part of the challenge parameters.
