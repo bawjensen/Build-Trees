@@ -7,8 +7,8 @@ $(function() {
     $('#search').keyup(function(evt) {
         if (evt.keyCode === 13) { // Hit 'enter' in the search field
             var champName = $(this).val().toLowerCase();
+        
             if (champNameList[champName]) { // If the input is a valid champion name
-                // window.location.hash = '/' + champName; // Redirect to that page
                 navigateTo('/' + champName); // Redirect to that page
             }
             else {
@@ -16,7 +16,6 @@ $(function() {
                 var possibilities = $('datalist#champions option').filter(function() { return this.value.match(regexMatch); });
                 if (possibilities.length) { // If the input is a partial match
                     $(possibilities[9]).click();
-                    // window.location.hash = '/' + possibilities[0].value.toLowerCase(); // Redirect to the first partial match
                     navigateTo('/' + possibilities[0].value.toLowerCase()); // Redirect to the first partial match
                 }
                 else {
