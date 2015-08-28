@@ -32,21 +32,19 @@ html(ng-app='buildTrees')
 
           .mdl-layout-spacer
 
-          nav.mdl-navigation
-            .mdl-textfield.mdl-js-textfield.mdl-textfield--expandable
-              label.mdl-button.mdl-js-button.mdl-button--icon(for='search')
-                i.material-icons search
+          datalist#champions
+            for champName, _ in champNameList
+              option(value=champName)
+                
+          .mdl-textfield.mdl-js-textfield.mdl-textfield--expandable
+            label.mdl-button.mdl-js-button.mdl-button--icon(for='search')
+              i.material-icons search
 
-              .mdl-textfield__expandable-holder
-                input#search.mdl-textfield__input(type='search' list='champions')
-                label.mdl-textfield__label(for='search') Enter your query...
-
-                datalist#champions
-                  for champName, _ in champNameList
-                    option(value=champName)
+            .mdl-textfield__expandable-holder
+              input.mdl-textfield__input#search(type='search' list='champions')
+              label.mdl-textfield__label(for='search') Search
       
       main.mdl-layout__content
-        //- block body-content
         div(ng-view)
 
         footer.mdl-mini-footer

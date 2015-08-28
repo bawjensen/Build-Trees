@@ -1,3 +1,8 @@
+@media only screen and (max-device-width: 667px) {
+  * {
+    cursor: pointer;
+  }
+}
 .mdl-layout {
   background: url('http://riot-web-static.s3.amazonaws.com/images/news/June_2014/SRDB3/srdb3-1.jpg') center / cover;
 }
@@ -6,107 +11,95 @@
   line-height: 52px;
   width: 100px;
 }
-@media only screen and (max-device-width: 667px) {
-  * {
-    cursor: pointer;
-  }
-}
-.explanation,
-#introduction {
+.mdl-layout .explanation,
+.mdl-layout #introduction {
   text-align: center;
   min-height: 0;
   color: white;
 }
-.explanation *,
-#introduction * {
+.mdl-layout .explanation *,
+.mdl-layout #introduction * {
   line-height: 3em;
 }
-footer {
-  text-align: center;
-}
-.mdl-layout__content {
+.mdl-layout .mdl-layout__content {
   overflow: visible;
 }
-.champDiv {
+.mdl-layout .mdl-layout__content .champDiv {
   text-align: center;
   white-space: nowrap;
   padding: 5px;
 }
-.champDiv img {
+.mdl-layout .mdl-layout__content .champDiv img {
   width: 100%;
   height: auto;
 }
-.champDiv .mdl-card {
+.mdl-layout .mdl-layout__content .champDiv .mdl-card {
   width: 100%;
   min-height: 0;
 }
-.champDiv .mdl-card .mdl-card__actions .mdl-button {
+.mdl-layout .mdl-layout__content .champDiv .mdl-card .mdl-card__actions .mdl-button {
   width: 100%;
   padding: 0;
   text-overflow: ellipsis;
 }
-.explanation {
-  text-align: center;
-  min-height: 0;
-}
-.explanation span {
-  padding: 10px 0;
-}
-.data-container {
+.mdl-layout .mdl-layout__content .data-container {
   text-align: center;
 }
-.data-container #before-container,
-.data-container #after-container {
+.mdl-layout .mdl-layout__content .data-container #before-container,
+.mdl-layout .mdl-layout__content .data-container #after-container {
   width: 100%;
 }
-#tooltip {
+.mdl-layout .mdl-layout__content .data-container svg .node {
+  cursor: pointer;
+}
+.mdl-layout .mdl-layout__content .data-container svg .linkNode {
+  cursor: default;
+}
+.mdl-layout .mdl-layout__content .data-container svg .linkNode:hover .link {
+  stroke-opacity: 0.5;
+}
+.mdl-layout .mdl-layout__content .data-container svg .linkNode:hover text {
+  font-size: 30px;
+}
+.mdl-layout .mdl-layout__content .data-container svg .linkNode .link {
+  fill: none;
+  stroke-width: 1.5px;
+  stroke-opacity: 0.375;
+  stroke-linecap: round;
+}
+.mdl-layout .mdl-layout__content .data-container svg .linkNode text {
+  transition-name: font-size;
+  transition-duration: .25s;
+}
+.mdl-layout .mdl-layout__content #tooltip {
   position: fixed;
   z-index: -1;
   opacity: 0;
   min-height: 0;
   text-align: center;
 }
-#tooltip.visible {
+.mdl-layout .mdl-layout__content #tooltip.visible {
   transition: opacity 0.25s ease-in-out;
   opacity: 0.9;
   z-index: 1;
 }
-#tooltip h1,
-#tooltip h2,
-#tooltip h3,
-#tooltip h4,
-#tooltip h5,
-#tooltip h6 {
+.mdl-layout .mdl-layout__content #tooltip h1,
+.mdl-layout .mdl-layout__content #tooltip h2,
+.mdl-layout .mdl-layout__content #tooltip h3,
+.mdl-layout .mdl-layout__content #tooltip h4,
+.mdl-layout .mdl-layout__content #tooltip h5,
+.mdl-layout .mdl-layout__content #tooltip h6 {
   margin: 0;
 }
-#tooltip .mdl-card__title-text {
+.mdl-layout .mdl-layout__content #tooltip .mdl-card__title-text {
   display: block;
   text-overflow: ellipsis;
 }
-#tooltip .mdl-card__subtitle-text {
+.mdl-layout .mdl-layout__content #tooltip .mdl-card__subtitle-text {
   font-size: 1.5em;
   margin-left: 10px;
   white-space: nowrap;
 }
-svg .node {
-  cursor: pointer;
-}
-svg .linkNode {
-  cursor: default;
-}
-svg .linkNode:hover .link {
-  stroke-opacity: 0.5;
-}
-svg .linkNode:hover text {
-  font-size: 30px;
-}
-svg .linkNode .link {
-  fill: none;
-  stroke-width: 1.5px;
-  stroke-opacity: 0.375;
-  stroke-linecap: round;
-}
-svg .linkNode text {
-  transition-name: font-size;
-  transition-duration: .25s;
+.mdl-layout .mdl-layout__content footer {
+  text-align: center;
 }
