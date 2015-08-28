@@ -87,8 +87,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .domain([0, 1])
         .range([STROKE_MIN * 1/TEXT_RELATIVE_SCALE, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
-    var pathColorScale = d3.scale.quantize() // Colors the paths based on win rate
-        .domain([0.4, 0.6])
+    var pathColorScale = d3.scale.linear() // Colors the paths based on win rate
+        .domain([0.4, 0.45, 0.5, 0.55, 0.6])
         .range([RED, ORANGE, YELLOW, YELLOW_GREEN, GREEN]);
 
     // Collapse the tree
@@ -123,10 +123,6 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
 
         // When a new node enters, append an image
         nodeEnter.append('image')
-            .on('mouseover.image', zoomImage.bind(null, true))
-            .on('mouseout.image', zoomImage.bind(null, false))
-            .on('mouseover.tooltip', toggleTooltip.bind(null, true))
-            .on('mouseout.tooltip', toggleTooltip.bind(null, false))
             .attr('id', function(d) { return 'image_' + d.id; })
             .attr('x', 1e-6)
             .attr('y', 1e-6)
@@ -139,6 +135,14 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
                 else
                     return ('http://ddragon.leagueoflegends.com/cdn/5.15.1/img/champion/' + staticChampData.data[d.champStrKey].image.full);
             });
+
+        if (!navigator.userAgent.match(/iPhone/)) {
+            nodeEnter
+                .on('mouseover.image', zoomImage.bind(null, true))
+                .on('mouseout.image', zoomImage.bind(null, false))
+                .on('mouseover.tooltip', toggleTooltip.bind(null, true))
+                .on('mouseout.tooltip', toggleTooltip.bind(null, false));
+        }
 
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()

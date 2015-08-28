@@ -1,3 +1,8 @@
+@media only screen and (max-device-width: 667px) {
+  * {
+    cursor: pointer;
+  }
+}
 .mdl-layout {
   background: url('http://riot-web-static.s3.amazonaws.com/images/news/June_2014/SRDB3/srdb3-1.jpg') center / cover;
 }
@@ -54,7 +59,7 @@
   cursor: default;
 }
 .mdl-layout .mdl-layout__content .data-container svg .linkNode:hover .link {
-  stroke-opacity: 0.5;
+  stroke-opacity: 0.75;
 }
 .mdl-layout .mdl-layout__content .data-container svg .linkNode:hover text {
   font-size: 30px;
@@ -62,7 +67,7 @@
 .mdl-layout .mdl-layout__content .data-container svg .linkNode .link {
   fill: none;
   stroke-width: 1.5px;
-  stroke-opacity: 0.375;
+  stroke-opacity: 0.5;
   stroke-linecap: round;
 }
 .mdl-layout .mdl-layout__content .data-container svg .linkNode text {
