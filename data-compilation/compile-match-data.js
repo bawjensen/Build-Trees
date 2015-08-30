@@ -118,7 +118,7 @@ function fetchAndStore() {
                             // Parse over match participants, trimming down data and assigning a flag for 'winner' based on teamId
                             matchData.participants.forEach(function(participant) {
                                 participant.winner = isWinningTeam[participant.teamId];
-                                participant.role = determineRole(participant.timeline);
+                                participant.role = determineRole(participant.timeline).toLowerCase();;
                                 for (var key in participant) {
                                     if (!desiredParticipantData.has(key))
                                         delete participant[key];
