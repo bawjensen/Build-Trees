@@ -16,7 +16,8 @@ var IMAGE_WIDTH         = 20,
     ORANGE              = '#F87217',
     YELLOW              = '#FFD801',
     YELLOW_GREEN        = '#B1FB17',
-    GREEN               = '#6CC417';
+    GREEN               = '#6CC417',
+    DARK_GREEN          = '#007700';
 
 // Functions for sorting in different orderings
 function sortNorm(a, b) {
@@ -89,7 +90,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .clamp(true);
     var pathColorScale = d3.scale.linear() // Colors the paths based on win rate
         .domain([0.4, 0.45, 0.5, 0.55, 0.6])
-        .range([RED, ORANGE, YELLOW, YELLOW_GREEN, GREEN]);
+        // .range([RED, ORANGE, YELLOW, YELLOW_GREEN, GREEN]);
+        .range([RED, ORANGE, YELLOW, GREEN, DARK_GREEN]);
 
     // Collapse the tree
     root.children.forEach(collapse);

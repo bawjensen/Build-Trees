@@ -29,17 +29,21 @@ buildTrees.controller('MainCtrl', function($scope, $location, $window) {
 
 // Champ page controller
 buildTrees.controller('ChampDataCtrl', function($scope, $location, ChampDataEntry) {
-  ChampDataEntry('After').then(function(result) {
+  ChampDataEntry('After')
+    .catch(function(err) { console.error('Issue with loading after data'); $location.path('/404') })
+    .then(function(result) {
       $('#after-container .loading-spinner').hide();
       plot(result.data, result.item, result.champ, '#after-container', false);
     })
-    .catch(function(err) { $location.path('/404') });
+    .catch(function(err) { console.error(err); });
 
-  ChampDataEntry('Before').then(function(result) {
+  ChampDataEntry('Before')
+    .catch(function(err) { console.error('Issue with loading before data'); $location.path('/404') })
+    .then(function(result) {
       $('#before-container .loading-spinner').hide();
       plot(result.data, result.item, result.champ, '#before-container', true);
     })
-    .catch(function(err) { $location.path('/404') });
+    .catch(function(err) { console.error(err); });
 });
 
 // Routing for the site
