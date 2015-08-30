@@ -34,9 +34,9 @@ Trie.prototype.insert = function(item_build, winner) {
             node.children[item] = new Node();
         }
 
-        ++node.children[item].count; // Counts whenever an item was even a part of a build
-        winner ? ++node.children[item].buildWon : ++node.children[item].buildLost; // Increment win/loss
         node = node.children[item]; // Set node to child
+        ++node.count; // Counts whenever an item was even a part of a build
+        winner ? ++node.buildWon : ++node.buildLost; // Increment win/loss
     }
 
     ++node.endedHere; // Increment the ending point of the build

@@ -12,12 +12,15 @@ var IMAGE_WIDTH         = 20,
     MIN_IMAGE_WIDTH     = 12,
     TEXT_RELATIVE_SCALE = 0.5,
     lastId              = 0,
+    // RED                 = '#FF2400',
+    // ORANGE              = '#F87217',
+    // YELLOW              = '#FFD801',
+    // YELLOW_GREEN        = '#B1FB17',
+    // GREEN               = '#6CC417',
+    // DARK_GREEN          = '#00AF00';
     RED                 = '#FF2400',
-    ORANGE              = '#F87217',
-    YELLOW              = '#FFD801',
-    YELLOW_GREEN        = '#B1FB17',
-    GREEN               = '#6CC417',
-    DARK_GREEN          = '#007700';
+    YELLOW              = '#FFFF00',
+    GREEN               = '#00AF00';
 
 // Functions for sorting in different orderings
 function sortNorm(a, b) {
@@ -89,9 +92,11 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .range([STROKE_MIN * 1/TEXT_RELATIVE_SCALE, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
     var pathColorScale = d3.scale.linear() // Colors the paths based on win rate
-        .domain([0.4, 0.45, 0.5, 0.55, 0.6])
+        // .domain([0.4, 0.45, 0.5, 0.55, 0.6])
+        .domain([0.4, 0.5, 0.6])
         // .range([RED, ORANGE, YELLOW, YELLOW_GREEN, GREEN]);
-        .range([RED, ORANGE, YELLOW, GREEN, DARK_GREEN]);
+        .range([RED, YELLOW, GREEN])
+        .clamp(true);
 
     // Collapse the tree
     root.children.forEach(collapse);
@@ -307,7 +312,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             var value = d.count;
 
             tooltipText.text(d.name);
-            tooltipCount.text('pick: ' + value);
+            tooltipCount.text('' + value + '(' + Math.round(100 * (d.count / d.parent.count)) + '%)');
             tooltipWinRate.text('won: ' + (d.winRate * 100).toFixed(2) + '%');
 
             tooltip.classed('visible', true)
