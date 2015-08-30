@@ -40,6 +40,12 @@ function logErrorAndRethrow(err) {
     throw err;
 }
 
+function determineRole(timeline) {
+    return timeline.lane === 'BOTTOM' ?
+        (timeline.role === 'DUO_SUPPORT' ? 'SUPPORT' : 'ADC') :
+        timeline.lane;
+}
+
 // --------------------------------------- Main Functions ---------------------------------------
 
 function fetchAndStore() {
@@ -49,7 +55,7 @@ function fetchAndStore() {
     var desiredData = new Set([ 'timeline', 'participants' ]);
     var desiredTimelineData = new Set([ 'frames' ]);
     var desiredFrameData = new Set([ 'events' ]);
-    var desiredParticipantData = new Set([ 'championId', 'participantId', 'winner' ]);
+    var desiredParticipantData = new Set([ 'championId', 'participantId', 'winner', 'role' ]);
 
     // The two types of match data gathered
     var matchTypes = [
@@ -112,6 +118,7 @@ function fetchAndStore() {
                             // Parse over match participants, trimming down data and assigning a flag for 'winner' based on teamId
                             matchData.participants.forEach(function(participant) {
                                 participant.winner = isWinningTeam[participant.teamId];
+                                participant.role = determineRole(participant.timeline);
                                 for (var key in participant) {
                                     if (!desiredParticipantData.has(key))
                                         delete participant[key];
