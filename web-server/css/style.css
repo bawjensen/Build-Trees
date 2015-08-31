@@ -45,6 +45,10 @@
   padding: 0;
   text-overflow: ellipsis;
 }
+.mdl-layout .mdl-layout__content .role-container {
+  min-height: 0;
+  text-align: center;
+}
 .mdl-layout .mdl-layout__content .data-container {
   text-align: center;
 }

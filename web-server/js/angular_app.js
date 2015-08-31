@@ -31,9 +31,16 @@ buildTrees.controller('MainCtrl', function($scope, $location, $window) {
 });
 
 // Champ page controller
-buildTrees.controller('ChampDataCtrl', function($scope, $location, ChampDataEntry) {
+buildTrees.controller('ChampDataCtrl', function($scope, $location, $routeParams, ChampDataEntry) {
+  $scope.champName = $routeParams.champName;
   ChampDataEntry('After')
-    .catch(function(err) { console.error('Issue with loading after data'); $location.path('/404') })
+    .catch(function(err) {
+      console.error(err);
+      if ($routeParams.role)
+        $location.path('/' + $routeParams.champName).replace();
+      else
+        $location.path('/404').replace();
+    })
     .then(function(result) {
       $('#after-container .loading-spinner').hide();
       plot(result.data, result.item, result.champ, '#after-container', false);
@@ -41,7 +48,13 @@ buildTrees.controller('ChampDataCtrl', function($scope, $location, ChampDataEntr
     .catch(function(err) { console.error(err); });
 
   ChampDataEntry('Before')
-    .catch(function(err) { console.error('Issue with loading before data'); $location.path('/404') })
+    .catch(function(err) {
+      console.error(err);
+      if ($routeParams.role)
+        $location.path('/' + $routeParams.champName).replace();
+      else
+        $location.path('/404').replace();
+    })
     .then(function(result) {
       $('#before-container .loading-spinner').hide();
       plot(result.data, result.item, result.champ, '#before-container', true);

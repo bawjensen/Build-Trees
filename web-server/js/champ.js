@@ -6,7 +6,8 @@ Script file to display d3, collapsible, Sankey-Diagram-esque trees of item build
 
 // Global constants
 var IMAGE_WIDTH         = 20,
-    STROKE_MIN          = 5,
+    STROKE_MIN          = 3,
+    TEXT_MIN            = 10,
     STROKE_MAX          = 40,
     LAYER_SPACING       = 100,
     MIN_IMAGE_WIDTH     = 12,
@@ -80,7 +81,8 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
     }
 
     // Set a global scaler as the largest tier 1 child
-    var maxWeight = root.children.reduce(function(largestValue, elem) { return largestValue > elem.count ? largestValue : elem.count; }, 0);
+    // var maxWeight = root.children.reduce(function(largestValue, elem) { return largestValue > elem.count ? largestValue : elem.count; }, 0);
+    var maxWeight = root.count * 0.8;
 
     // Various useful scaling functions
     var imageSizeScale = d3.scale.linear() // Scales the images based on pick rate
@@ -89,7 +91,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
         .clamp(true);
     var textSizeScale = d3.scale.linear() // Scales the text based on pick rate
         .domain([0, 1])
-        .range([STROKE_MIN * 1/TEXT_RELATIVE_SCALE, STROKE_MAX * TEXT_RELATIVE_SCALE])
+        .range([TEXT_MIN, STROKE_MAX * TEXT_RELATIVE_SCALE])
         .clamp(true);
     var pathColorScale = d3.scale.linear() // Colors the paths based on win rate
         // .domain([0.4, 0.45, 0.5, 0.55, 0.6])
