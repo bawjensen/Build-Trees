@@ -1,8 +1,3 @@
-@media only screen and (max-device-width: 667px) {
-  * {
-    cursor: pointer;
-  }
-}
 .mdl-layout {
   background: url('http://riot-web-static.s3.amazonaws.com/images/news/June_2014/SRDB3/srdb3-1.jpg') center / cover;
 }
@@ -40,8 +35,14 @@
   width: 100%;
   min-height: 0;
 }
+@media only screen and (max-device-width: 840px) {
+  .mdl-layout .mdl-layout__content .champDiv .mdl-card .mdl-card__actions {
+    padding: 4px;
+  }
+}
 .mdl-layout .mdl-layout__content .champDiv .mdl-card .mdl-card__actions .mdl-button {
   width: 100%;
+  min-width: 0;
   padding: 0;
   text-overflow: ellipsis;
 }

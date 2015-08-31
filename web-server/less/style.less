@@ -1,9 +1,9 @@
-// Hacky way of allowing deselection of tooltips on mobile
-@media only screen and (max-device-width: 667px)  {
-  * {
-    cursor: pointer;
-  }
-}
+// // Hacky way of allowing deselection of tooltips on mobile
+// @media only screen and (max-device-width: 667px)  {
+//   * {
+//     cursor: pointer;
+//   }
+// }
 
 .mdl-layout {
   background: url('http://riot-web-static.s3.amazonaws.com/images/news/June_2014/SRDB3/srdb3-1.jpg') center / cover;
@@ -53,8 +53,13 @@
         min-height: 0;
 
         .mdl-card__actions {
+          @media only screen and (max-device-width: 840px) {
+            padding: 4px;
+          }
+
           .mdl-button {
             width: 100%;
+            min-width: 0;
             padding: 0;
             text-overflow: ellipsis;
           }
