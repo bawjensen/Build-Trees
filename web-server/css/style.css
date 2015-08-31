@@ -20,7 +20,7 @@
 }
 .mdl-layout .mdl-layout__content .explanation *,
 .mdl-layout .mdl-layout__content #introduction * {
-  line-height: 3em;
+  min-height: 3em;
 }
 .mdl-layout .mdl-layout__content .champDiv {
   text-align: center;
