@@ -59,6 +59,7 @@ function fetchAndStore() {
     var champNameConverter; // Semi-global champ name variable (read from file)
 
     var champItemBuilds = {};
+    var champItemRoleBuilds = {};
 
     return promises.openDB('mongodb://localhost:27017/lol-data')
         .then(function(newDB) { db = newDB; }) // Store it for use anywhere
@@ -93,7 +94,12 @@ function fetchAndStore() {
 
                         match.participants.forEach(function(participant) {
                             if (!(participant.championId in champItemBuilds)) {
+                                champItemRoleBuilds[participant.championId] = {};
                                 champItemBuilds[participant.championId] = new Trie();
+                            }
+
+                            if (!(participant.role in champItemRoleBuilds[participant.championId])) {
+                                champItemRoleBuilds[participant.championId][participant.role] = new Trie();
                             }
 
                             let build = allBuilds[participant.participantId];
@@ -101,6 +107,7 @@ function fetchAndStore() {
                             if (build) {
                                 // Only insert the first 6 items
                                 champItemBuilds[participant.championId].insert(build.slice(0, 6), participant.winner);
+                                champItemRoleBuilds[participant.championId][participant.role].insert(build.slice(0, 6), participant.winner);
                             }
                         });
                     });
@@ -121,6 +128,22 @@ function fetchAndStore() {
 
                 // Output the serialized trie to a JSON file, for use by web-server/d3.js
                 fs.writeFile('web-server/data/' + champName.toLowerCase() + MODE + '.json', JSON.stringify(jsonCompatibleTrie), function(err) { if (err) console.log(err); });
+            }
+
+            for (var championId in champItemRoleBuilds) {
+                var champName = champNameConverter[''+championId].name;
+
+                for (var role in champItemRoleBuilds[championId]) {
+                    // Only keep the top 4 children of every node
+                    champItemRoleBuilds[championId][role].prune(4);
+
+                    var jsonCompatibleTrie = champItemRoleBuilds[championId][role].toTreeJSON(champName, staticItemData);
+
+                    jsonCompatibleTrie.champStrKey = champNameConverter[''+championId].strKey;
+
+                    // Output the serialized trie to a JSON file, for use by web-server/d3.js
+                    fs.writeFile('web-server/data/' + champName.toLowerCase() + role + MODE + '.json', JSON.stringify(jsonCompatibleTrie), function(err) { if (err) console.log(err); });
+                }
             }
         })
         .catch(function(err) {

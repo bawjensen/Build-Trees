@@ -12,8 +12,11 @@ var buildTrees = angular.module('buildTrees', [
 // Resource service for loading champion data for d3
 buildTrees.factory('ChampDataEntry', function($resource, $q, $routeParams) {
   return function(mode) {
+    var role = '';
+    if ($routeParams.role)
+      role = $routeParams.role;
     return $q.all({
-      data: $resource('data/' + $routeParams.champName + mode + '.json', {}, {}).get().$promise,
+      data: $resource('data/' + $routeParams.champName + role + mode + '.json', {}, {}).get().$promise,
       item: $resource('data/item' + mode + '.json', {}, {}).get().$promise,
       champ: $resource('data/champ' + mode + '.json', {}, {}).get().$promise
     });
@@ -59,5 +62,10 @@ buildTrees.config(['$routeProvider',
       .when('/:champName', {
         templateUrl: 'views/champ.html',
         controller: 'ChampDataCtrl'
-      });
+      })
+      .when('/:champName/:role', {
+        templateUrl: 'views/champ.html',
+        controller: 'ChampDataCtrl'
+      })
+      .otherwise('/404');
   }]);

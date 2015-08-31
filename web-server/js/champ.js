@@ -312,7 +312,7 @@ function plot(jsonData, staticItemData, staticChampData, containerSelector, reve
             var value = d.count;
 
             tooltipText.text(d.name);
-            tooltipCount.text('' + value + '(' + Math.round(100 * (d.count / d.parent.count)) + '%)');
+            tooltipCount.text('' + value + '(' + Math.round(100 * (d.count / (d.parent ? d.parent.count : d.count))) + '%)');
             tooltipWinRate.text('won: ' + (d.winRate * 100).toFixed(2) + '%');
 
             tooltip.classed('visible', true)
