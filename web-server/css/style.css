@@ -27,13 +27,14 @@
   white-space: nowrap;
   padding: 5px;
 }
-.mdl-layout .mdl-layout__content .champDiv img {
-  width: 100%;
-  height: auto;
-}
 .mdl-layout .mdl-layout__content .champDiv .mdl-card {
   width: 100%;
   min-height: 0;
+  overflow: visible;
+}
+.mdl-layout .mdl-layout__content .champDiv .mdl-card .mdl-card__media img {
+  width: 100%;
+  height: auto;
 }
 @media only screen and (max-device-width: 840px) {
   .mdl-layout .mdl-layout__content .champDiv .mdl-card .mdl-card__actions {

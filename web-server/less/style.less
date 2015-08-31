@@ -43,14 +43,17 @@
       white-space: nowrap;
       padding: 5px;
 
-      img {
-        width: 100%;
-        height: auto;
-      }
-
       .mdl-card {
         width: 100%;
         min-height: 0;
+        overflow: visible; // Fixes issue with white edge on images
+
+        .mdl-card__media {
+          img {
+            width: 100%;
+            height: auto;
+          }
+        }
 
         .mdl-card__actions {
           @media only screen and (max-device-width: 840px) {
