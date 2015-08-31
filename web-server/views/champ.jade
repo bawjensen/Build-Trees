@@ -2,10 +2,10 @@
   .explanation.mdl-cell.mdl-cell--12-col
     h6 Click on an item to expand/collapse future purchases. Color of branches is based off the winrate of that particular build.
 
-  each role in ['top', 'jungle', 'middle', 'adc', 'support']
-    .role-container.mdl-cell.mdl-cell--2-col.mdl-card.mdl-shadow--4dp
+  each role in ['top', 'jungle', 'middle', 'adc', 'support', '']
+    .role-container.mdl-cell.mdl-cell--2-col.mdl-cell--4-col-tablet.mdl-card.mdl-shadow--4dp
       .mdl-card__actions
-        a.mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect(ng-href='/#/{{ champName }}/' + role)= role
+        a.mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect(ng-href='/#/{{ champName }}/' + role)= (role || 'none')
 
   .data-container.mdl-card.mdl-shadow--4dp.mdl-cell.mdl-cell--6-col.mdl-cell--8-col-tablet
     h5 5.11 (Before the AP Item Changes)
