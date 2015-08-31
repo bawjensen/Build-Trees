@@ -7,7 +7,7 @@ var fs          = require('fs'),
     promises    = require('../helpers/promised.js'), // Helper functions that 'promisify' useful behaviors
     Trie        = require('../helpers/item-build-trie.js'); // Custom data structure for storing builds
 
-var LIMIT = process.argv[3] ? parseInt(process.argv[3]) : 10000; // Limiting the number of matches to use - useful for debugging
+var LIMIT = process.argv[3] ? parseInt(process.argv[3]) : 200000; // Limiting the number of matches to use - useful for debugging
 
 var MODE = process.argv[2] ? // Processing mode to use
                 (process.argv[2] === 'a' ? 'After' : 'Before') :
