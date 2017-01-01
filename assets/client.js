@@ -1707,7 +1707,7 @@ webpackJsonp([0],{
 
   var fetchPageData = function () {
     var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(champDataLabel, buildDataLabel) {
-      var urls, _ref2, _ref3, champResp, buildsResp, itemsResp, allStatuses, champData, buildsData, itemsData;
+      var urls, _ref2, _ref3, champResp, buildsResp, itemsResp, allStatuses, uniqueStatuses, niceErrorObj, champData, buildsData, itemsData;
 
       return _regenerator2.default.wrap(function _callee$(_context) {
         while (1) {
@@ -1731,49 +1731,43 @@ webpackJsonp([0],{
               champResp = _ref3[0];
               buildsResp = _ref3[1];
               itemsResp = _ref3[2];
-              allStatuses = _lodash2.default.uniq(_lodash2.default.map([champResp, buildsResp, itemsResp], 'status'));
+              allStatuses = _lodash2.default.map([champResp, buildsResp, itemsResp], 'status');
+              uniqueStatuses = _lodash2.default.uniq(allStatuses);
 
-              if (allStatuses.length === 1 && allStatuses[0] === 200) {
-                _context.next = 11;
+              if (uniqueStatuses.length === 1 && uniqueStatuses[0] === 200) {
+                _context.next = 13;
                 break;
               }
 
-              throw new Error('Non-zero status on one of the data requests: ' + (0, _stringify2.default)(allStatuses));
-
-            case 11:
-              _context.next = 13;
-              return champResp.json();
+              niceErrorObj = _lodash2.default.zipObject(urls, allStatuses);
+              throw new Error('Non-zero status on one of the data requests: ' + (0, _stringify2.default)(niceErrorObj));
 
             case 13:
+              _context.next = 15;
+              return champResp.json();
+
+            case 15:
               champData = _context.sent;
-              _context.next = 16;
+              _context.next = 18;
               return buildsResp.json();
 
-            case 16:
+            case 18:
               buildsData = _context.sent;
-              _context.next = 19;
+              _context.next = 21;
               return itemsResp.json();
 
-            case 19:
+            case 21:
               itemsData = _context.sent;
 
               if (!(!champData || !champData.data)) {
-                _context.next = 22;
+                _context.next = 24;
                 break;
               }
 
               throw new Error('Failed to load the champion data.');
 
-            case 22:
-              if (buildsData) {
-                _context.next = 24;
-                break;
-              }
-
-              throw new Error('Failed to load the builds data.');
-
             case 24:
-              if (itemsResp) {
+              if (buildsData) {
                 _context.next = 26;
                 break;
               }
@@ -1781,17 +1775,25 @@ webpackJsonp([0],{
               throw new Error('Failed to load the builds data.');
 
             case 26:
+              if (itemsResp) {
+                _context.next = 28;
+                break;
+              }
+
+              throw new Error('Failed to load the builds data.');
+
+            case 28:
 
               champData = (0, _values2.default)(champData.data);
 
               if (!(champData.length !== 1)) {
-                _context.next = 29;
+                _context.next = 31;
                 break;
               }
 
               throw new Error('Champion data was malformed, expected 1 entry got: ' + champData.length);
 
-            case 29:
+            case 31:
 
               champData = champData[0];
 
@@ -1801,7 +1803,7 @@ webpackJsonp([0],{
                 itemsData: itemsData
               });
 
-            case 31:
+            case 33:
             case 'end':
               return _context.stop();
           }
@@ -1867,7 +1869,7 @@ webpackJsonp([0],{
                       {
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 68
+                          lineNumber: 70
                         },
                         __self: _this
                       },
@@ -1878,7 +1880,7 @@ webpackJsonp([0],{
                         roleLabel: 'All Roles',
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 69
+                          lineNumber: 71
                         },
                         __self: _this
                       })
@@ -1921,7 +1923,7 @@ webpackJsonp([0],{
                       {
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 93
+                          lineNumber: 95
                         },
                         __self: _this2
                       },
@@ -1932,7 +1934,7 @@ webpackJsonp([0],{
                         roleLabel: context.params.role,
                         __source: {
                           fileName: _jsxFileName,
-                          lineNumber: 94
+                          lineNumber: 96
                         },
                         __self: _this2
                       })
