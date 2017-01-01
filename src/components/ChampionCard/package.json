@@ -1,0 +1,6 @@
+{
+  "name": "ChampionCard",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./ChampionCard.js"
+}

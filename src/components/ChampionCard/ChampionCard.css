@@ -1,0 +1,17 @@
+.card {
+  text-align: center;
+  white-space: nowrap;
+  width: 100%;
+  min-height: auto;
+}
+
+.champImage {
+  width: 100%;
+}
+
+.nameButton {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  text-overflow: ellipsis;
+}
