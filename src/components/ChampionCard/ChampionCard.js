@@ -15,7 +15,7 @@ class ChampionCard extends React.Component {
 
   render() {
     return (
-      <Link className={`${s.card} mdl-card mdl-shadow--4dp`} to={`/c/${this.props.champion.name.toLowerCase()}`}>
+      <Link className={`${s.card} mdl-card mdl-shadow--4dp`} to={`/c/${this.props.champion.name}`}>
         <div className="mdl-card__media">
           <img
             className={s.champImage}

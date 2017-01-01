@@ -7,10 +7,12 @@
  * LICENSE.txt file in the root directory of this source tree.
  */
 
+import _ from 'lodash';
 import path from 'path';
 import fetch from 'node-fetch';
 import { writeFile, makeDir } from './lib/fs';
 import runServer from './runServer';
+import ROLES from '../src/data/roles';
 
 // Enter your paths here which you want to render as static
 // Example:
@@ -30,12 +32,14 @@ const routes = [
 async function render() {
   const server = await runServer();
 
-  // add dynamic routes
-  // const products = await fetch(`http://${server.host}/api/products`).then(res => res.json());
-  // products.forEach(product => routes.push(
-  //   `/product/${product.uri}`,
-  //   `/product/${product.uri}/specs`
-  // ));
+  const roles = _.concat([{ id: '' }], ...ROLES);
+
+  // add dynamic routes for champions
+  const championData = await fetch(`http://${server.host}/champion.json`).then(res => res.json());
+  _.slice(Object.values(championData.data), 0, 10).forEach(champion => routes.push(
+    ...roles.map(role => `/c/${champion.id}/${role.id}`),
+    `/${champion.id}.json`,
+  ));
 
   await Promise.all(routes.map(async (route, index) => {
     const url = `http://${server.host}${route}`;

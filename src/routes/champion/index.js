@@ -58,7 +58,7 @@ export default {
 
       async action(context) {
         const { champData, buildsData, itemsData } = await fetchPageData(
-          _.lowerCase(context.params.champion).replace(/ /g, ''),
+          context.params.champion.replace(/ /g, ''),
           _.lowerCase(context.params.champion),
         );
 
@@ -82,7 +82,7 @@ export default {
 
       async action(context) {
         const { champData, buildsData, itemsData } = await fetchPageData(
-          _.lowerCase(context.params.champion).replace(/ /g, ''),
+          context.params.champion.replace(/ /g, ''),
           `${_.lowerCase(context.params.champion)}-${_.lowerCase(context.params.role)}`,
         );
 
