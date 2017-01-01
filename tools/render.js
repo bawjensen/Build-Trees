@@ -38,7 +38,6 @@ async function render() {
   const championData = await fetch(`http://${server.host}/champion.json`).then(res => res.json());
   _.slice(Object.values(championData.data), 0, 10).forEach(champion => routes.push(
     ...roles.map(role => `/c/${champion.id}/${role.id}`),
-    `/${champion.id}.json`,
   ));
 
   await Promise.all(routes.map(async (route, index) => {

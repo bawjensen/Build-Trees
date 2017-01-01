@@ -21,9 +21,11 @@ async function fetchPageData(champDataLabel, buildDataLabel) {
     }),
   ));
 
-  const allStatuses = _.uniq(_.map([champResp, buildsResp, itemsResp], 'status'));
-  if (!(allStatuses.length === 1 && allStatuses[0] === 200)) {
-    throw new Error(`Non-zero status on one of the data requests: ${JSON.stringify(allStatuses)}`);
+  const allStatuses = _.map([champResp, buildsResp, itemsResp], 'status');
+  const uniqueStatuses = _.uniq(allStatuses);
+  if (!(uniqueStatuses.length === 1 && uniqueStatuses[0] === 200)) {
+    const niceErrorObj = _.zipObj(urls, allStatuses);
+    throw new Error(`Non-zero status on one of the data requests: ${JSON.stringify(niceErrorObj)}`);
   }
 
   let champData = await champResp.json();
