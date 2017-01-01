@@ -13,7 +13,7 @@ import build from './build';
 
 const remote = {
   name: 'github',
-  url: 'https://github.com/{user}/{repo}.git',
+  url: 'git@github.com:bawjensen/Build-Trees.git',
   branch: 'gh-pages',
 };
 
