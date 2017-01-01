@@ -952,7 +952,7 @@ webpackJsonp([0],{
       value: function render() {
         return _react2.default.createElement(
           _Link2.default,
-          { className: _ChampionCard2.default.card + ' mdl-card mdl-shadow--4dp', to: '/c/' + this.props.champion.name.toLowerCase(), __source: {
+          { className: _ChampionCard2.default.card + ' mdl-card mdl-shadow--4dp', to: '/c/' + this.props.champion.name, __source: {
               fileName: _jsxFileName,
               lineNumber: 18
             },
@@ -1853,7 +1853,7 @@ webpackJsonp([0],{
               switch (_context2.prev = _context2.next) {
                 case 0:
                   _context2.next = 2;
-                  return fetchPageData(_lodash2.default.lowerCase(context.params.champion).replace(/ /g, ''), _lodash2.default.lowerCase(context.params.champion));
+                  return fetchPageData(context.params.champion.replace(/ /g, ''), _lodash2.default.lowerCase(context.params.champion));
 
                 case 2:
                   _ref4 = _context2.sent;
@@ -1907,7 +1907,7 @@ webpackJsonp([0],{
               switch (_context3.prev = _context3.next) {
                 case 0:
                   _context3.next = 2;
-                  return fetchPageData(_lodash2.default.lowerCase(context.params.champion).replace(/ /g, ''), _lodash2.default.lowerCase(context.params.champion) + '-' + _lodash2.default.lowerCase(context.params.role));
+                  return fetchPageData(context.params.champion.replace(/ /g, ''), _lodash2.default.lowerCase(context.params.champion) + '-' + _lodash2.default.lowerCase(context.params.role));
 
                 case 2:
                   _ref5 = _context3.sent;
