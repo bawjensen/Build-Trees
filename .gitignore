@@ -1,7 +1,0 @@
-.DS_Store
-
-db/
-dump/
-backup*
-
-*.sublime-workspace
