@@ -25,9 +25,12 @@ import ROLES from '../src/data/roles';
 // ];
 const routes = [
   '/',
-  '/c/Alistar/',
   '/404', // https://help.github.com/articles/creating-a-custom-404-page-for-your-github-pages-site/
 ];
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function render() {
   const server = await runServer();
@@ -36,15 +39,16 @@ async function render() {
 
   // add dynamic routes for champions
   const championData = await fetch(`http://${server.host}/champion.json`).then(res => res.json());
-  _.slice(Object.values(championData.data), 0, 10).forEach(champion => routes.push(
+  Object.values(championData.data).forEach(champion => routes.push(
     ...roles.map(role => `/c/${champion.id}/${role.id}`),
   ));
 
   await Promise.all(routes.map(async (route, index) => {
+    await sleep(index * 10);
     const url = `http://${server.host}${route}`;
     const fileName = route.endsWith('/') ? 'index.html' : `${path.basename(route, '.html')}.html`;
     const dirName = path.join('build/public', route.endsWith('/') ? route : path.dirname(route));
-    const dist = `${dirName}${fileName}`;
+    const dist = path.join(dirName, fileName);
     const timeStart = new Date();
     const response = await fetch(url);
     const timeEnd = new Date();

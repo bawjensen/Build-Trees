@@ -17,12 +17,12 @@ svg {
 }
 
 .linkContainer > text {
-  fill: #777777;
+  fill: #777;
   transition: font-size 0.25s;
 }
 
 .linkContainer:hover > text {
-  fill: #444444;
+  fill: #444;
   font-size: 24px;
 }
 
@@ -39,7 +39,7 @@ svg {
 }
 
 .tooltipContainerIsVisible {
-  transition: opacity .25s ease-in-out;
+  transition: opacity 0.25s ease-in-out;
   opacity: 0.9;
   z-index: 1;
 }
