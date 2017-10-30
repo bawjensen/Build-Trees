@@ -1,0 +1,4 @@
+.root {
+  height: 60px;
+  flex-shrink: 0;
+}
