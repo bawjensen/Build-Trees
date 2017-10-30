@@ -530,11 +530,11 @@ webpackJsonp([0],{
 
   var _home2 = _interopRequireDefault(_home);
 
-  var _champion = __webpack_require__(655);
+  var _champion = __webpack_require__(657);
 
   var _champion2 = _interopRequireDefault(_champion);
 
-  var _notFound = __webpack_require__(675);
+  var _notFound = __webpack_require__(677);
 
   var _notFound2 = _interopRequireDefault(_notFound);
 
@@ -881,7 +881,7 @@ webpackJsonp([0],{
 
 
   // module
-  exports.push([module.id, ".Home-welcome-3ej0y {\n  text-align: center;\n  color: white;\n}", "", {"version":3,"sources":["/./routes/home/Home.css"],"names":[],"mappings":"AAAA;EACE,mBAAmB;EACnB,aAAa;CACd","file":"Home.css","sourcesContent":[".welcome {\n  text-align: center;\n  color: white;\n}"],"sourceRoot":"webpack://"}]);
+  exports.push([module.id, ".Home-welcome-3ej0y {\n  text-align: center;\n  color: white;\n}\n", "", {"version":3,"sources":["/./routes/home/Home.css"],"names":[],"mappings":"AAAA;EACE,mBAAmB;EACnB,aAAa;CACd","file":"Home.css","sourcesContent":[".welcome {\n  text-align: center;\n  color: white;\n}\n"],"sourceRoot":"webpack://"}]);
 
   // exports
   exports.locals = {
@@ -1058,7 +1058,7 @@ webpackJsonp([0],{
 
 
   // module
-  exports.push([module.id, ".ChampionCard-card-3m_uH {\n  text-align: center;\n  white-space: nowrap;\n  width: 100%;\n  min-height: auto;\n}\n\n.ChampionCard-champImage-qCQxV {\n  width: 100%;\n}\n\n.ChampionCard-nameButton-3_Qiq {\n  width: 100%;\n  min-width: 0;\n  padding: 0;\n  text-overflow: ellipsis;\n}", "", {"version":3,"sources":["/./components/ChampionCard/ChampionCard.css"],"names":[],"mappings":"AAAA;EACE,mBAAmB;EACnB,oBAAoB;EACpB,YAAY;EACZ,iBAAiB;CAClB;;AAED;EACE,YAAY;CACb;;AAED;EACE,YAAY;EACZ,aAAa;EACb,WAAW;EACX,wBAAwB;CACzB","file":"ChampionCard.css","sourcesContent":[".card {\n  text-align: center;\n  white-space: nowrap;\n  width: 100%;\n  min-height: auto;\n}\n\n.champImage {\n  width: 100%;\n}\n\n.nameButton {\n  width: 100%;\n  min-width: 0;\n  padding: 0;\n  text-overflow: ellipsis;\n}"],"sourceRoot":"webpack://"}]);
+  exports.push([module.id, ".ChampionCard-card-3m_uH {\n  text-align: center;\n  white-space: nowrap;\n  width: 100%;\n  min-height: auto;\n}\n\n.ChampionCard-champImage-qCQxV {\n  width: 100%;\n}\n\n.ChampionCard-nameButton-3_Qiq {\n  width: 100%;\n  min-width: 0;\n  padding: 0;\n  text-overflow: ellipsis;\n}\n", "", {"version":3,"sources":["/./components/ChampionCard/ChampionCard.css"],"names":[],"mappings":"AAAA;EACE,mBAAmB;EACnB,oBAAoB;EACpB,YAAY;EACZ,iBAAiB;CAClB;;AAED;EACE,YAAY;CACb;;AAED;EACE,YAAY;EACZ,aAAa;EACb,WAAW;EACX,wBAAwB;CACzB","file":"ChampionCard.css","sourcesContent":[".card {\n  text-align: center;\n  white-space: nowrap;\n  width: 100%;\n  min-height: auto;\n}\n\n.champImage {\n  width: 100%;\n}\n\n.nameButton {\n  width: 100%;\n  min-width: 0;\n  padding: 0;\n  text-overflow: ellipsis;\n}\n"],"sourceRoot":"webpack://"}]);
 
   // exports
   exports.locals = {
@@ -1285,7 +1285,7 @@ webpackJsonp([0],{
 
   var _Header2 = _interopRequireDefault(_Header);
 
-  var _Footer = __webpack_require__(652);
+  var _Footer = __webpack_require__(654);
 
   var _Footer2 = _interopRequireDefault(_Footer);
 
@@ -1449,6 +1449,14 @@ webpackJsonp([0],{
 
   var _react2 = _interopRequireDefault(_react);
 
+  var _withStyles = __webpack_require__(625);
+
+  var _withStyles2 = _interopRequireDefault(_withStyles);
+
+  var _Header = __webpack_require__(652);
+
+  var _Header2 = _interopRequireDefault(_Header);
+
   var _Link = __webpack_require__(643);
 
   var _Link2 = _interopRequireDefault(_Link);
@@ -1468,39 +1476,46 @@ webpackJsonp([0],{
       value: function render() {
         return _react2.default.createElement(
           'header',
-          {
-            className: 'mdl-layout__header mdl-layout__header--transparent mdl-layout__header--scroll',
-            __source: {
+          { className: _Header2.default.root, __source: {
               fileName: _jsxFileName,
-              lineNumber: 7
+              lineNumber: 9
             },
             __self: this
           },
           _react2.default.createElement(
             'div',
-            { className: 'mdl-layout__header-row', __source: {
+            { className: 'mdl-grid', __source: {
                 fileName: _jsxFileName,
                 lineNumber: 10
               },
               __self: this
             },
             _react2.default.createElement(
-              'span',
-              { className: 'mdl-layout__title', __source: {
+              'div',
+              { className: 'mdl-cell mdl-cell--12-col', __source: {
                   fileName: _jsxFileName,
                   lineNumber: 11
                 },
                 __self: this
               },
               _react2.default.createElement(
-                _Link2.default,
-                { className: 'mdl-button mdl-js-button mdl-button--colored mdl-button--raised mdl-js-ripple-effect', to: '/', __source: {
+                'span',
+                { className: 'mdl-layout__title', __source: {
                     fileName: _jsxFileName,
                     lineNumber: 12
                   },
                   __self: this
                 },
-                'Build Trees'
+                _react2.default.createElement(
+                  _Link2.default,
+                  { className: 'mdl-button mdl-js-button mdl-button--colored mdl-button--raised mdl-js-ripple-effect', to: '/', __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 13
+                    },
+                    __self: this
+                  },
+                  'Build Trees'
+                )
               )
             )
           )
@@ -1510,11 +1525,64 @@ webpackJsonp([0],{
     return Header;
   }(_react2.default.Component);
 
-    exports.default = Header;
+    exports.default = (0, _withStyles2.default)(_Header2.default)(Header);
 
 /***/ },
 
 /***/ 652:
+/***/ function(module, exports, __webpack_require__) {
+
+  
+      var content = __webpack_require__(653);
+      var insertCss = __webpack_require__(630);
+
+      if (typeof content === 'string') {
+        content = [[module.id, content, '']];
+      }
+
+      module.exports = content.locals || {};
+      module.exports._getContent = function() { return content; };
+      module.exports._getCss = function() { return content.toString(); };
+      module.exports._insertCss = function(options) { return insertCss(content, options) };
+      
+      // Hot Module Replacement
+      // https://webpack.github.io/docs/hot-module-replacement
+      // Only activated in browser context
+      if (false) {
+        var removeCss = function() {};
+        module.hot.accept("!!./../../../node_modules/css-loader/index.js?{\"importLoaders\":1,\"sourceMap\":true,\"modules\":true,\"localIdentName\":\"[name]-[local]-[hash:base64:5]\",\"minimize\":false,\"discardComments\":{\"removeAll\":true}}!./../../../node_modules/postcss-loader/index.js?pack=default!./Header.css", function() {
+          content = require("!!./../../../node_modules/css-loader/index.js?{\"importLoaders\":1,\"sourceMap\":true,\"modules\":true,\"localIdentName\":\"[name]-[local]-[hash:base64:5]\",\"minimize\":false,\"discardComments\":{\"removeAll\":true}}!./../../../node_modules/postcss-loader/index.js?pack=default!./Header.css");
+
+          if (typeof content === 'string') {
+            content = [[module.id, content, '']];
+          }
+
+          removeCss = insertCss(content, { replace: true });
+        });
+        module.hot.dispose(function() { removeCss(); });
+      }
+    
+
+/***/ },
+
+/***/ 653:
+/***/ function(module, exports, __webpack_require__) {
+
+  exports = module.exports = __webpack_require__(629)();
+  // imports
+
+
+  // module
+  exports.push([module.id, ".Header-root-3Gi4A {\n  height: 60px;\n  -webkit-flex-shrink: 0;\n      -ms-flex-negative: 0;\n          flex-shrink: 0;\n}\n", "", {"version":3,"sources":["/./components/Header/Header.css"],"names":[],"mappings":"AAAA;EACE,aAAa;EACb,uBAAe;MAAf,qBAAe;UAAf,eAAe;CAChB","file":"Header.css","sourcesContent":[".root {\n  height: 60px;\n  flex-shrink: 0;\n}\n"],"sourceRoot":"webpack://"}]);
+
+  // exports
+  exports.locals = {
+  	"root": "Header-root-3Gi4A"
+  };
+
+/***/ },
+
+/***/ 654:
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -1560,7 +1628,7 @@ webpackJsonp([0],{
 
   var _withStyles2 = _interopRequireDefault(_withStyles);
 
-  var _Footer = __webpack_require__(653);
+  var _Footer = __webpack_require__(655);
 
   var _Footer2 = _interopRequireDefault(_Footer);
 
@@ -1617,11 +1685,11 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 653:
+/***/ 655:
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(654);
+      var content = __webpack_require__(656);
       var insertCss = __webpack_require__(630);
 
       if (typeof content === 'string') {
@@ -1653,7 +1721,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 654:
+/***/ 656:
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(629)();
@@ -1670,7 +1738,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 655:
+/***/ 657:
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -1683,7 +1751,7 @@ webpackJsonp([0],{
 
   var _regenerator2 = _interopRequireDefault(_regenerator);
 
-  var _values = __webpack_require__(656);
+  var _values = __webpack_require__(658);
 
   var _values2 = _interopRequireDefault(_values);
 
@@ -1816,7 +1884,7 @@ webpackJsonp([0],{
     };
   }();
 
-  var _lodash = __webpack_require__(660);
+  var _lodash = __webpack_require__(662);
 
   var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -1824,7 +1892,7 @@ webpackJsonp([0],{
 
   var _react2 = _interopRequireDefault(_react);
 
-  var _Champion = __webpack_require__(662);
+  var _Champion = __webpack_require__(664);
 
   var _Champion2 = _interopRequireDefault(_Champion);
 
@@ -1954,7 +2022,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 662:
+/***/ 664:
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -1963,7 +2031,7 @@ webpackJsonp([0],{
     value: true
   });
 
-  var _toConsumableArray2 = __webpack_require__(663);
+  var _toConsumableArray2 = __webpack_require__(665);
 
   var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 
@@ -1989,7 +2057,7 @@ webpackJsonp([0],{
 
   var _jsxFileName = '/Users/bryanjensen/Desktop/build-trees/src/routes/champion/Champion.js';
 
-  var _lodash = __webpack_require__(660);
+  var _lodash = __webpack_require__(662);
 
   var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -2001,7 +2069,7 @@ webpackJsonp([0],{
 
   var _withStyles2 = _interopRequireDefault(_withStyles);
 
-  var _Champion = __webpack_require__(668);
+  var _Champion = __webpack_require__(670);
 
   var _Champion2 = _interopRequireDefault(_Champion);
 
@@ -2009,11 +2077,11 @@ webpackJsonp([0],{
 
   var _Link2 = _interopRequireDefault(_Link);
 
-  var _ChampionBuilds = __webpack_require__(670);
+  var _ChampionBuilds = __webpack_require__(672);
 
   var _ChampionBuilds2 = _interopRequireDefault(_ChampionBuilds);
 
-  var _roles = __webpack_require__(674);
+  var _roles = __webpack_require__(676);
 
   var _roles2 = _interopRequireDefault(_roles);
 
@@ -2134,11 +2202,11 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 668:
+/***/ 670:
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(669);
+      var content = __webpack_require__(671);
       var insertCss = __webpack_require__(630);
 
       if (typeof content === 'string') {
@@ -2170,7 +2238,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 669:
+/***/ 671:
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(629)();
@@ -2178,7 +2246,7 @@ webpackJsonp([0],{
 
 
   // module
-  exports.push([module.id, ".Champion-explanation-WaEkp {\n  text-align: center;\n  color: white;\n}\n\n.Champion-roleLinkContainer-ca-Xx {\n  text-align: center;\n  min-height: auto;\n}", "", {"version":3,"sources":["/./routes/champion/Champion.css"],"names":[],"mappings":"AAAA;EACE,mBAAmB;EACnB,aAAa;CACd;;AAED;EACE,mBAAmB;EACnB,iBAAiB;CAClB","file":"Champion.css","sourcesContent":[".explanation {\n  text-align: center;\n  color: white;\n}\n\n.roleLinkContainer {\n  text-align: center;\n  min-height: auto;\n}"],"sourceRoot":"webpack://"}]);
+  exports.push([module.id, ".Champion-explanation-WaEkp {\n  text-align: center;\n  color: white;\n}\n\n.Champion-roleLinkContainer-ca-Xx {\n  text-align: center;\n  min-height: auto;\n}\n", "", {"version":3,"sources":["/./routes/champion/Champion.css"],"names":[],"mappings":"AAAA;EACE,mBAAmB;EACnB,aAAa;CACd;;AAED;EACE,mBAAmB;EACnB,iBAAiB;CAClB","file":"Champion.css","sourcesContent":[".explanation {\n  text-align: center;\n  color: white;\n}\n\n.roleLinkContainer {\n  text-align: center;\n  min-height: auto;\n}\n"],"sourceRoot":"webpack://"}]);
 
   // exports
   exports.locals = {
@@ -2188,7 +2256,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 670:
+/***/ 672:
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -2219,11 +2287,11 @@ webpackJsonp([0],{
 
   var _jsxFileName = '/Users/bryanjensen/Desktop/build-trees/src/components/ChampionBuilds/ChampionBuilds.js';
 
-  var _lodash = __webpack_require__(660);
+  var _lodash = __webpack_require__(662);
 
   var _lodash2 = _interopRequireDefault(_lodash);
 
-  var _d = __webpack_require__(671);
+  var _d = __webpack_require__(673);
 
   var _d2 = _interopRequireDefault(_d);
 
@@ -2235,7 +2303,7 @@ webpackJsonp([0],{
 
   var _withStyles2 = _interopRequireDefault(_withStyles);
 
-  var _ChampionBuilds = __webpack_require__(672);
+  var _ChampionBuilds = __webpack_require__(674);
 
   var _ChampionBuilds2 = _interopRequireDefault(_ChampionBuilds);
 
@@ -2750,11 +2818,11 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 672:
+/***/ 674:
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(673);
+      var content = __webpack_require__(675);
       var insertCss = __webpack_require__(630);
 
       if (typeof content === 'string') {
@@ -2786,7 +2854,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 673:
+/***/ 675:
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(629)();
@@ -2794,7 +2862,7 @@ webpackJsonp([0],{
 
 
   // module
-  exports.push([module.id, "svg {\n  fill: none;\n  stroke-linecap: round;\n}\n\n.ChampionBuilds-buildsLabel-2Xd40 {\n  text-align: center;\n}\n\n.ChampionBuilds-linkContainer-2zUa4 {\n  stroke-opacity: 0.5;\n  cursor: default;\n}\n\n.ChampionBuilds-linkContainer-2zUa4:hover {\n  stroke-opacity: 0.75;\n}\n\n.ChampionBuilds-linkContainer-2zUa4 > text {\n  fill: #777777;\n  -webkit-transition: font-size 0.25s;\n  transition: font-size 0.25s;\n}\n\n.ChampionBuilds-linkContainer-2zUa4:hover > text {\n  fill: #444444;\n  font-size: 24px;\n}\n\n.ChampionBuilds-treeNodeContainer-37kOg {\n  cursor: pointer;\n}\n\n.ChampionBuilds-tooltipContainer-ik3-V {\n  position: fixed;\n  z-index: -1;\n  opacity: 0;\n  min-height: 0;\n  text-align: center;\n}\n\n.ChampionBuilds-tooltipContainerIsVisible-2IKea {\n  -webkit-transition: opacity .25s ease-in-out;\n  transition: opacity .25s ease-in-out;\n  opacity: 0.9;\n  z-index: 1;\n}\n\n.ChampionBuilds-tooltipTitle-v69jp {\n  /* Note: relies on the presence of mdl-card__title on the parent */\n  -webkit-align-self: center;\n      -ms-flex-item-align: center;\n              -ms-grid-row-align: center;\n          align-self: center;\n}\n\n.ChampionBuilds-tooltipSubTitle-1Z0wR {\n  margin: 0 10px;\n  white-space: nowrap;\n}\n", "", {"version":3,"sources":["/./components/ChampionBuilds/ChampionBuilds.css"],"names":[],"mappings":"AAAA;EACE,WAAW;EACX,sBAAsB;CACvB;;AAED;EACE,mBAAmB;CACpB;;AAED;EACE,oBAAoB;EACpB,gBAAgB;CACjB;;AAED;EACE,qBAAqB;CACtB;;AAED;EACE,cAAc;EACd,oCAA4B;EAA5B,4BAA4B;CAC7B;;AAED;EACE,cAAc;EACd,gBAAgB;CACjB;;AAED;EACE,gBAAgB;CACjB;;AAED;EACE,gBAAgB;EAChB,YAAY;EACZ,WAAW;EACX,cAAc;EACd,mBAAmB;CACpB;;AAED;EACE,6CAAqC;EAArC,qCAAqC;EACrC,aAAa;EACb,WAAW;CACZ;;AAED;EACE,mEAAmE;EACnE,2BAAmB;MAAnB,4BAAmB;cAAnB,2BAAmB;UAAnB,mBAAmB;CACpB;;AAED;EACE,eAAe;EACf,oBAAoB;CACrB","file":"ChampionBuilds.css","sourcesContent":["svg {\n  fill: none;\n  stroke-linecap: round;\n}\n\n.buildsLabel {\n  text-align: center;\n}\n\n.linkContainer {\n  stroke-opacity: 0.5;\n  cursor: default;\n}\n\n.linkContainer:hover {\n  stroke-opacity: 0.75;\n}\n\n.linkContainer > text {\n  fill: #777777;\n  transition: font-size 0.25s;\n}\n\n.linkContainer:hover > text {\n  fill: #444444;\n  font-size: 24px;\n}\n\n.treeNodeContainer {\n  cursor: pointer;\n}\n\n.tooltipContainer {\n  position: fixed;\n  z-index: -1;\n  opacity: 0;\n  min-height: 0;\n  text-align: center;\n}\n\n.tooltipContainerIsVisible {\n  transition: opacity .25s ease-in-out;\n  opacity: 0.9;\n  z-index: 1;\n}\n\n.tooltipTitle {\n  /* Note: relies on the presence of mdl-card__title on the parent */\n  align-self: center;\n}\n\n.tooltipSubTitle {\n  margin: 0 10px;\n  white-space: nowrap;\n}\n"],"sourceRoot":"webpack://"}]);
+  exports.push([module.id, "svg {\n  fill: none;\n  stroke-linecap: round;\n}\n\n.ChampionBuilds-buildsLabel-2Xd40 {\n  text-align: center;\n}\n\n.ChampionBuilds-linkContainer-2zUa4 {\n  stroke-opacity: 0.5;\n  cursor: default;\n}\n\n.ChampionBuilds-linkContainer-2zUa4:hover {\n  stroke-opacity: 0.75;\n}\n\n.ChampionBuilds-linkContainer-2zUa4 > text {\n  fill: #777;\n  -webkit-transition: font-size 0.25s;\n  transition: font-size 0.25s;\n}\n\n.ChampionBuilds-linkContainer-2zUa4:hover > text {\n  fill: #444;\n  font-size: 24px;\n}\n\n.ChampionBuilds-treeNodeContainer-37kOg {\n  cursor: pointer;\n}\n\n.ChampionBuilds-tooltipContainer-ik3-V {\n  position: fixed;\n  z-index: -1;\n  opacity: 0;\n  min-height: 0;\n  text-align: center;\n}\n\n.ChampionBuilds-tooltipContainerIsVisible-2IKea {\n  -webkit-transition: opacity 0.25s ease-in-out;\n  transition: opacity 0.25s ease-in-out;\n  opacity: 0.9;\n  z-index: 1;\n}\n\n.ChampionBuilds-tooltipTitle-v69jp {\n  /* Note: relies on the presence of mdl-card__title on the parent */\n  -webkit-align-self: center;\n      -ms-flex-item-align: center;\n              -ms-grid-row-align: center;\n          align-self: center;\n}\n\n.ChampionBuilds-tooltipSubTitle-1Z0wR {\n  margin: 0 10px;\n  white-space: nowrap;\n}\n", "", {"version":3,"sources":["/./components/ChampionBuilds/ChampionBuilds.css"],"names":[],"mappings":"AAAA;EACE,WAAW;EACX,sBAAsB;CACvB;;AAED;EACE,mBAAmB;CACpB;;AAED;EACE,oBAAoB;EACpB,gBAAgB;CACjB;;AAED;EACE,qBAAqB;CACtB;;AAED;EACE,WAAW;EACX,oCAA4B;EAA5B,4BAA4B;CAC7B;;AAED;EACE,WAAW;EACX,gBAAgB;CACjB;;AAED;EACE,gBAAgB;CACjB;;AAED;EACE,gBAAgB;EAChB,YAAY;EACZ,WAAW;EACX,cAAc;EACd,mBAAmB;CACpB;;AAED;EACE,8CAAsC;EAAtC,sCAAsC;EACtC,aAAa;EACb,WAAW;CACZ;;AAED;EACE,mEAAmE;EACnE,2BAAmB;MAAnB,4BAAmB;cAAnB,2BAAmB;UAAnB,mBAAmB;CACpB;;AAED;EACE,eAAe;EACf,oBAAoB;CACrB","file":"ChampionBuilds.css","sourcesContent":["svg {\n  fill: none;\n  stroke-linecap: round;\n}\n\n.buildsLabel {\n  text-align: center;\n}\n\n.linkContainer {\n  stroke-opacity: 0.5;\n  cursor: default;\n}\n\n.linkContainer:hover {\n  stroke-opacity: 0.75;\n}\n\n.linkContainer > text {\n  fill: #777;\n  transition: font-size 0.25s;\n}\n\n.linkContainer:hover > text {\n  fill: #444;\n  font-size: 24px;\n}\n\n.treeNodeContainer {\n  cursor: pointer;\n}\n\n.tooltipContainer {\n  position: fixed;\n  z-index: -1;\n  opacity: 0;\n  min-height: 0;\n  text-align: center;\n}\n\n.tooltipContainerIsVisible {\n  transition: opacity 0.25s ease-in-out;\n  opacity: 0.9;\n  z-index: 1;\n}\n\n.tooltipTitle {\n  /* Note: relies on the presence of mdl-card__title on the parent */\n  align-self: center;\n}\n\n.tooltipSubTitle {\n  margin: 0 10px;\n  white-space: nowrap;\n}\n"],"sourceRoot":"webpack://"}]);
 
   // exports
   exports.locals = {
@@ -2809,7 +2877,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 674:
+/***/ 676:
 /***/ function(module, exports) {
 
   'use strict';
@@ -2836,7 +2904,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 675:
+/***/ 677:
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -2861,7 +2929,7 @@ webpackJsonp([0],{
 
   var _Layout2 = _interopRequireDefault(_Layout);
 
-  var _NotFound = __webpack_require__(676);
+  var _NotFound = __webpack_require__(678);
 
   var _NotFound2 = _interopRequireDefault(_NotFound);
 
@@ -2899,7 +2967,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 676:
+/***/ 678:
 /***/ function(module, exports, __webpack_require__) {
 
   'use strict';
@@ -2945,7 +3013,7 @@ webpackJsonp([0],{
 
   var _withStyles2 = _interopRequireDefault(_withStyles);
 
-  var _NotFound = __webpack_require__(677);
+  var _NotFound = __webpack_require__(679);
 
   var _NotFound2 = _interopRequireDefault(_NotFound);
 
@@ -3014,11 +3082,11 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 677:
+/***/ 679:
 /***/ function(module, exports, __webpack_require__) {
 
   
-      var content = __webpack_require__(678);
+      var content = __webpack_require__(680);
       var insertCss = __webpack_require__(630);
 
       if (typeof content === 'string') {
@@ -3050,7 +3118,7 @@ webpackJsonp([0],{
 
 /***/ },
 
-/***/ 678:
+/***/ 680:
 /***/ function(module, exports, __webpack_require__) {
 
   exports = module.exports = __webpack_require__(629)();
